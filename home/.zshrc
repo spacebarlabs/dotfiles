@@ -34,3 +34,6 @@ if [ ! -f "$HOME/.tmux/user.conf" ]; then
 fi
 
 eval "$(~/.local/bin/mise activate zsh)"
+
+# Case insensitive completion (m:{a-z}={A-Z} matches lowercase to uppercase)
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
