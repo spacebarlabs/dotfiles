@@ -94,6 +94,9 @@ if has("autocmd")
   " In Makefiles, use real tabs, not tabs expanded to spaces
   au FileType make set noexpandtab
 
+  " @see http://www.codeography.com/2010/07/13/json-syntax-highlighting-in-vim.html
+  autocmd BufNewFile,BufRead *.json set ft=javascript
+
   " Make sure markdown files use markdown mode
   au BufNewFile,BufRead *.md setfiletype markdown
   au BufNewFile,BufRead *.markdown setfiletype markdown
@@ -104,6 +107,9 @@ if has("autocmd")
 
   " Enable spell checking for git commits
   au FileType gitcommit setlocal spell
+
+  " Resize splits when window size changes
+  au VimResized * exe "normal! \<c-w>="
 
   " Remember last location in file, but not for commit messages.
   " see :help last-position-jump
@@ -152,6 +158,10 @@ set secure
 map \ :NERDTreeToggle<CR>
 
 nmap <Leader>l iLorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.<esc>
+nmap <Leader>r ggIRefactor: <esc>
+nmap <Leader>f i#{__FILE__}:#{__LINE__} <esc>
+nmap <Leader>x 0f[lrx
+map <Leader>i YPIputs "<esc>A: #{(<esc>JxA)}"<esc>hi.inspect<esc>0j
 
 vmap <Leader>z :call I18nTranslateString()<CR>
 
@@ -182,21 +192,36 @@ function! RenameFile()
 endfunction
 map <leader>mv :call RenameFile()<cr>
 
-abbrev teh the
-abbrev yuo you
-abbrev hte the
-abbrev nad and
-abbrev frmo from
+" Auto-save
+set updatetime=100 " needed for the next bit
+autocmd CursorHold * update " https://vi.stackexchange.com/questions/74/is-it-possible-to-make-vim-auto-save-files
+
+" https://www.rockyourcode.com/vim-trick-map-ctrl-s-to-save/
+nnoremap <silent><c-s> :<c-u>update<cr>
+vnoremap <silent><c-s> <c-c>:update<cr>gv
+inoremap <silent><c-s> <c-o>:update<cr>
+
 abbrev buig bug
-abbrev jsut just
-abbrev tempalte template
-abbrev teamplate template
-abbrev flase false
-abbrev ptus puts
 abbrev contorl control
+abbrev flase false
+abbrev frmo from
+abbrev hte the
+abbrev jsut just
+abbrev nad and
+abbrev ptus puts
+abbrev teamplate template
+abbrev teh the
+abbrev tempalte template
+abbrev TOOD TODO
+abbrev ture true
+abbrev yuo you
 
 " Use vim-style binding for Y, unlike nvim which does y$
 map Y yy
+
+" Same as o, but doesn't leave you in insert.  Really nice for spacing code out.
+noremap - o<esc>
+noremap _ O<esc>
 
 "
 " ###########
@@ -279,7 +304,7 @@ map <leader>= gg=G''
 " source: https://medium.com/a-tiny-piece-of-vim/making-ctrlp-vim-load-100x-faster-7a722fae7df6
 let g:ctrlp_user_command = ['.git/', 'git --git-dir=%s/.git ls-files -oc --exclude-standard']
 
-set foldmethod=indent
+set foldmethod=syntax
 " foldevalstart approximates a 'don't automatically fold everything when a file is
 " opened' setting
 set foldlevelstart=99
