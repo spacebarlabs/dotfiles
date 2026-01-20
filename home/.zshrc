@@ -2,7 +2,7 @@ export EDITOR=vim
 export ZSH=$HOME/.oh-my-zsh
 export ZSH_CUSTOM=$HOME/.oh-my-zsh-custom
 export ZSH_THEME="continuity"
-plugins=(git git-flow rails ruby macos gem vi-mode rvm bundler)
+plugins=(git git-flow rails ruby macos gem vi-mode bundler)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -103,7 +103,6 @@ alias unhitch='hitch -u'
 alias vi='vim'
 alias openwork='vim -p $(git ls-files -m) $(git ls-files --others --exclude-standard)'
 
-PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
 PATH=$PATH:$HOME/bin # Make personal scripts available
 PATH=$PATH:$HOME/.bin # Make dotfiles scripts available
 
@@ -138,6 +137,3 @@ if [ ! -f "$HOME/.tmux/user.conf" ]; then
   touch $HOME/.tmux/user.conf
 fi
 
-# RVM is a silly thing. This fixes tmux not loading gemset
-# http://stackoverflow.com/a/6097090/3010499
-cd .
