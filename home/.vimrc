@@ -1,3 +1,7 @@
+if (has("termguicolors"))
+ set termguicolors
+endif
+
 call plug#begin('~/.vim/plugged')
 
 " Make sure you use single quotes
@@ -49,6 +53,8 @@ Plug 'https://github.com/vim-ruby/vim-ruby'
 Plug 'https://github.com/vim-scripts/DeleteTrailingWhitespace'
 Plug 'https://github.com/vim-scripts/ShowTrailingWhitespace'
 Plug 'https://github.com/prabirshrestha/vim-lsp'
+
+Plug 'dracula/vim', { 'as': 'dracula' }
 
 if filereadable(glob("~/.vim/local/vimplug"))
   source ~/.vim/local/vimplug
@@ -136,16 +142,20 @@ set wildmenu                "enable ctrl-n and ctrl-p to scroll thru matches
 
 syntax enable
 
-if has('termguicolors')
-  " fix truecolor bug for vim
-  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-  set termguicolors
-endif
+" if has('termguicolors')
+"   " fix truecolor bug for vim
+"   let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+"   let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+"   set termguicolors
+" endif
+"
+" let g:solarized_termtrans = 1
+" set background=dark
+" colorscheme solarized8
 
-let g:solarized_termtrans = 1
-set background=dark
-colorscheme solarized8
+" packadd! dracula
+syntax enable
+colorscheme dracula
 
 let g:ShowTrailingWhitespace = 1
 highlight ShowTrailingWhitespace ctermbg=Red guibg=Red
