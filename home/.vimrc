@@ -226,11 +226,6 @@ abbrev Contorl Control
 cnoreabbrev W w
 cnoreabbrev Tabe tabe
 
-noremap <Up> <NOP>
-noremap <Down> <NOP>
-noremap <Left> <NOP>
-noremap <Right> <NOP>
-
 " Use vim-style binding for Y, unlike nvim which does y$
 map Y yy
 
