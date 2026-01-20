@@ -20,38 +20,13 @@ autoload -U zrecompile
 alias git='nocorrect noglob git'
 alias rake='noglob rake'
 # Add the following to your ~/.bashrc or ~/.zshrc
-#
-# Alternatively, copy/symlink this file and source in your shell.  See `hitch --setup-path`.
-
-# hitch() {
-#   (rvm system; command hitch "$@")
-#   if [[ -s "$HOME/.hitch_export_authors" ]] ; then source "$HOME/.hitch_export_authors" ; fi
-# }
-alias unhitch='hitch -u'
 alias vi='vim'
-alias openwork='vim -p $(git ls-files -m) $(git ls-files --others --exclude-standard)'
 
 PATH=$PATH:$HOME/bin # Make personal scripts available
 PATH=$PATH:$HOME/.bin # Make dotfiles scripts available
 
 # tell nokogiri to use sysem libraries instead of compiling packaged libs
 export NOKOGIRI_USE_SYSTEM_LIBRARIES=1
-
-if [ -f "$HOME/.my_pairing_port" ]; then
-  # Put your pairing port in ~/.my_pairing_port (single line with just your port number)
-  my_pairing_port=$(cat $HOME/.my_pairing_port)
-  alias rsp="rails server -u puma -b 127.0.0.1 --port ${my_pairing_port}"
-fi
-
-if [ -f "$HOME/.my_live_reload_port" ]; then
-  # Put your live reload port in ~/.my_live_reload_port (single line with just your port number)
-  export LIVE_RELOAD_PORT=$(cat $HOME/.my_live_reload_port)
-fi
-
-if [ -f "$HOME/.my_jasmine_server_port" ]; then
-  # Put your jasmine port in ~/.my_jasmine_server_port (single line with just your port number)
-  export JASMINE_SERVER_PORT=$(cat $HOME/.my_jasmine_server_port)
-fi
 
 # Allow for local environment configuration in ~/.zsh/*.zsh
 if [ -d ~/.zsh ]; then
