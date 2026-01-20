@@ -7,9 +7,9 @@
   lg = log -p
   lp = log --oneline --graph --color
   dfw = diff --word-diff=color
-  pfwl = push --force-with-lease
-  pwfl = push --force-with-lease
-  pwlf = push --force-with-lease
+  pfwl = push --set-upstream --force-with-lease --force-if-includes origin HEAD
+  pwfl = push --set-upstream --force-with-lease --force-if-includes origin HEAD
+  pwlf = push --set-upstream --force-with-lease --force-if-includes origin HEAD
 [color]
   status = true
   diff = true
