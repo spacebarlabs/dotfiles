@@ -54,6 +54,7 @@ Plug 'https://github.com/vim-scripts/DeleteTrailingWhitespace'
 Plug 'https://github.com/vim-scripts/ShowTrailingWhitespace'
 Plug 'https://github.com/prabirshrestha/vim-lsp'
 
+Plug 'nathangrigg/vim-beancount'
 Plug 'dracula/vim', { 'as': 'dracula' }
 
 if filereadable(glob("~/.vim/local/vimplug"))
