@@ -8,3 +8,8 @@
   path = ~/.gitconfig.d/gitflow
 [credential]
 	helper = cache
+[user]
+	email = git@spacebarlabs.com
+	name = Benjamin Oakes
+[init]
+	defaultBranch = main
