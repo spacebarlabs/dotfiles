@@ -8,6 +8,3 @@
   path = ~/.gitconfig.d/gitflow
 [credential]
 	helper = cache
-[user]
-	email = engineering+boakes+zmorek@spacebarlabs.com
-	name = Ben Oakes + Zachary Morek
