@@ -28,13 +28,6 @@ PATH=$PATH:$HOME/.bin # Make dotfiles scripts available
 # tell nokogiri to use sysem libraries instead of compiling packaged libs
 export NOKOGIRI_USE_SYSTEM_LIBRARIES=1
 
-# Allow for local environment configuration in ~/.zsh/*.zsh
-if [ -d ~/.zsh ]; then
-  for config_file (~/.zsh/*.zsh); do
-    source $config_file
-  done
-fi
-
 # Prevent warnings if the user has not set up a tmux user.conf file
 if [ ! -f "$HOME/.tmux/user.conf" ]; then
   touch $HOME/.tmux/user.conf
