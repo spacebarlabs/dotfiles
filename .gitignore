@@ -14,7 +14,3 @@
 # Git Config
 .gitconfig.d/user
 .gitconfig.d/local
-
-# Tmux
-.tmux/resurrect/
-.tmux/user.conf

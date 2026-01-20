@@ -1,8 +1,8 @@
 export EDITOR=vim
 export ZSH=$HOME/.oh-my-zsh
 export ZSH_CUSTOM=$HOME/.oh-my-zsh-custom
-export ZSH_THEME="continuity"
-plugins=(git git-flow rails ruby macos gem vi-mode bundler)
+export ZSH_THEME="spacebarlabs"
+plugins=(git rails ruby gem vi-mode bundler)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -19,11 +19,10 @@ autoload -U zrecompile
 #ignore obnoxious stuff
 alias git='nocorrect noglob git'
 alias rake='noglob rake'
-# Add the following to your ~/.bashrc or ~/.zshrc
+
 alias vi='vim'
 
 PATH=$PATH:$HOME/bin # Make personal scripts available
-PATH=$PATH:$HOME/.bin # Make dotfiles scripts available
 
 # tell nokogiri to use sysem libraries instead of compiling packaged libs
 export NOKOGIRI_USE_SYSTEM_LIBRARIES=1
