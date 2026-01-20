@@ -18,3 +18,4 @@ export PATH="$HOME/.bin:$PATH"
 
 source "$HOME/.vi-everywhere/bash.d/init.sh"
 
+bind "set completion-ignore-case on"
