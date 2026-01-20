@@ -1,15 +1,35 @@
-# ZSH Theme - Preview: http://gyazo.com/8becc8a7ed5ab54a0262a470555c3eed.png
+mise_prompt_info() {
+  # Check if mise exists
+  if ! command -v mise &> /dev/null; then return; fi
+
+  local tools
+  # 1. Run mise ls
+  # 2. Awk Filters:
+  #    - $3 != "": Must have a source file (ignore tools that are just installed but not active)
+  #    - $3 !~ /config\.toml$/: Ignore the global mise config file
+  #    - $3 != "~/.tool-versions": Ignore the global .tool-versions in home (optional, remove if you want to see those)
+  tools=$(mise ls --no-header 2>/dev/null | awk '
+    $3 != "" && \
+    $3 !~ /config\.toml$/ && \
+    $3 != "~/.tool-versions" {
+      print $1 ":" $2
+    }
+  ' | paste -sd ' ' -)
+
+  # Only print if tools were found
+  if [ -n "$tools" ]; then
+    echo "%{$fg[red]%}‹$tools›%{$reset_color%}"
+  fi
+}
+
 local return_code="%(?..%{$fg[red]%}%? ↵%{$reset_color%})"
 
 local user_host='%{$terminfo[bold]$fg[green]%}%n@%m%{$reset_color%}'
 local current_dir='%{$terminfo[bold]$fg[blue]%} %~%{$reset_color%}'
-if hash rvm-prompt 2>/dev/null; then
-  local rvm_ruby='%{$fg[red]%}‹$(rvm-prompt s i v p g)›%{$reset_color%}'
-fi
 local git_branch='$(git_prompt_info)%{$reset_color%}'
 
-PROMPT="╭ ${user_host} ${current_dir} ${rvm_ruby} ${git_branch} \$BUNDLE_GEMFILE
-╰ %B$%b "
+PROMPT="${user_host} ${current_dir} \$(mise_prompt_info) ${git_branch} \$BUNDLE_GEMFILE
+%B$%b "
 
 ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg[yellow]%}‹"
 ZSH_THEME_GIT_PROMPT_SUFFIX="› %{$reset_color%}"
