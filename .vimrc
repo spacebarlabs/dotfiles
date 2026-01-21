@@ -6,7 +6,10 @@ call plug#begin('~/.vim/plugged')
 
 " Make sure you use single quotes
 
-Plug 'https://github.com/sheerun/vim-polyglot'
+Plug 'https://github.com/othree/html5.vim'
+Plug 'https://github.com/pangloss/vim-javascript'
+Plug 'https://github.com/elzr/vim-json'
+Plug 'https://github.com/vim-ruby/vim-ruby'
 
 Plug 'https://github.com/airblade/vim-gitgutter'
 Plug 'https://github.com/bkad/CamelCaseMotion'
