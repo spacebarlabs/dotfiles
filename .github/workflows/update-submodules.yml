@@ -45,7 +45,7 @@ jobs:
         id: changes
         run: |
           # Get detailed list of updated submodules using git submodule status
-          CHANGES=$(git submodule status | grep "^+" || echo "")
+          CHANGES=$(git submodule status | { grep "^+" || true; })
           if [ -n "$CHANGES" ]; then
             {
               echo "changes<<EOF"
