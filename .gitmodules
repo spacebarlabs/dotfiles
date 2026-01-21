@@ -74,10 +74,6 @@
 	path = .vim/pack/plugins/start/vim-mkdir
 	url = https://github.com/pbrisbin/vim-mkdir
 	shallow = true
-[submodule ".vim/pack/plugins/start/nerdtree"]
-	path = .vim/pack/plugins/start/nerdtree
-	url = https://github.com/scrooloose/nerdtree
-	shallow = true
 [submodule ".vim/pack/plugins/start/tlib_vim"]
 	path = .vim/pack/plugins/start/tlib_vim
 	url = https://github.com/tomtom/tlib_vim
