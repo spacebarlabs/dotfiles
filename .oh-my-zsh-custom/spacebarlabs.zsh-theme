@@ -22,13 +22,15 @@ mise_prompt_info() {
   fi
 }
 
+local current_time_iso8601='$(date +"%Y-%m-%dT%H:%M:%S")'
+
 local return_code="%(?..%{$fg[red]%}%? ↵%{$reset_color%})"
 
 local user_host='%{$terminfo[bold]$fg[green]%}%n@%m%{$reset_color%}'
 local current_dir='%{$terminfo[bold]$fg[blue]%} %~%{$reset_color%}'
 local git_branch='$(git_prompt_info)%{$reset_color%}'
 
-PROMPT="${user_host} ${current_dir} \$(mise_prompt_info) ${git_branch} \$BUNDLE_GEMFILE
+PROMPT="${user_host} ${current_dir} \$(mise_prompt_info) ${git_branch} \$BUNDLE_GEMFILE  (${current_time_iso8601})
 %B$%b "
 
 ZSH_THEME_GIT_PROMPT_PREFIX="%{$fg[yellow]%}‹"

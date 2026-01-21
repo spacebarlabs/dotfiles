@@ -1,15 +1,25 @@
 [alias]
-  st = status
-  ci = commit
   br = branch
+  ci = commit
   co = checkout
-  df = diff --color
-  lg = log -p
-  lp = log --oneline --graph --color
+  dc = diff --cached
+  df = diff --color --no-prefix
   dfw = diff --word-diff=color
+  git = !exec git
+  lg = log -p --no-prefix
+  lp = log --oneline --graph --color
+  ls = ls-files
   pfwl = push --set-upstream --force-with-lease --force-if-includes origin HEAD
+  st = status
+
+  # typos
+  cloen = clone
+  ic = commit
+  oc = checkout
+  pll = pull
   pwfl = push --set-upstream --force-with-lease --force-if-includes origin HEAD
   pwlf = push --set-upstream --force-with-lease --force-if-includes origin HEAD
+  upll = pull
 [color]
   status = true
   diff = true
@@ -19,7 +29,12 @@
   editor = /usr/bin/vim
   preloadindex = true
   excludesfile = ~/.gitconfig.d/gitignore
+  attributesfile = ~/.personal/gitconfig.d/gitattributes
 [merge]
   tool = /usr/bin/vimdiff
 [push]
   default = simple
+[pull]
+  ff = only
+[help]
+  autoCorrect = immediate
