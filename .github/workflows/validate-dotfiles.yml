@@ -1,0 +1,103 @@
+name: Validate Dotfiles
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install required packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bash zsh vim tmux git ruby
+
+      - name: Validate Bash configuration
+        run: |
+          echo "Testing .bashrc..."
+          bash -c "source .bashrc && echo 'Bash config loaded successfully'"
+
+      - name: Validate Zsh configuration
+        run: |
+          echo "Testing .zshrc..."
+          # Install oh-my-zsh (required for .zshrc)
+          sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+          
+          # Create custom theme directory and copy theme
+          mkdir -p $HOME/.oh-my-zsh-custom
+          cp -r .oh-my-zsh-custom/* $HOME/.oh-my-zsh-custom/ || true
+          
+          # Create required tmux user.conf file (referenced in .zshrc)
+          mkdir -p $HOME/.tmux
+          touch $HOME/.tmux/user.conf
+          
+          # Create mise directory (required by .zshrc)
+          mkdir -p $HOME/.local/bin
+          # Create a dummy mise script since actual mise isn't needed for syntax check
+          echo '#!/bin/bash' > $HOME/.local/bin/mise
+          echo 'echo "activate zsh"' >> $HOME/.local/bin/mise
+          chmod +x $HOME/.local/bin/mise
+          
+          # Test zsh config loads without errors
+          zsh -c "source .zshrc && echo 'Zsh config loaded successfully'"
+
+      - name: Validate Vim configuration
+        run: |
+          echo "Testing .vimrc..."
+          # Install vim-plug
+          curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+            https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+          
+          # Create backup directory (required by .vimrc)
+          mkdir -p ~/.vim/backup
+          
+          # Install vim plugins (this will install dracula theme and other required plugins)
+          vim -u .vimrc +PlugInstall +qall
+          
+          # Test vim config by opening and closing vim
+          vim -u .vimrc --noplugin -c "quit"
+          echo "Vim config loaded successfully"
+
+      - name: Validate Tmux configuration
+        run: |
+          echo "Testing .tmux.conf..."
+          # Test tmux config syntax
+          PID=$(tmux -f .tmux.conf -L test_session new-session -d -P -F '#{pid}')
+          sleep 1
+          tmux -L test_session list-sessions
+          kill $PID 2>/dev/null || true
+          echo "Tmux config loaded successfully"
+
+      - name: Validate Git configuration
+        run: |
+          echo "Testing .gitconfig..."
+          # Create referenced config directories
+          mkdir -p ~/.gitconfig.d
+          touch ~/.gitconfig.d/shared
+          touch ~/.gitconfig.d/user
+          touch ~/.gitconfig.d/local
+          touch ~/.gitconfig.d/gitflow
+          
+          # Test git config by reading it
+          git config -f .gitconfig --list
+          echo "Git config loaded successfully"
+
+      - name: Validate Ruby gem configuration
+        run: |
+          echo "Testing .gemrc..."
+          # Test gemrc syntax by loading it
+          ruby -e "require 'yaml'; YAML.load_file('.gemrc')"
+          echo "Gem config loaded successfully"
+
+      - name: Validate IRB configuration
+        run: |
+          echo "Testing .irbrc..."
+          # Test irbrc by loading it via Ruby
+          ruby -r ./.irbrc -e "puts 'IRB config loaded successfully'"
