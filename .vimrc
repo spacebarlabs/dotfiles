@@ -75,8 +75,14 @@ endif
 " =============================================================================
 let mapleader=","
 
-" NERDTree
-map \ :NERDTreeToggle<CR>
+" Netrw - File browser (replacement for NERDTree)
+let g:netrw_banner = 0          " Hide the banner
+let g:netrw_liststyle = 3       " Tree view
+let g:netrw_browse_split = 4    " Open in previous window and close netrw
+let g:netrw_altv = 1            " Open vertical splits to the right when using v
+let g:netrw_winsize = 25        " Width of the explorer (25%)
+" Toggle Netrw (Lexplore) with backslash
+map \ :Lexplore<CR>
 
 " Quick helpers
 cnoremap %% <C-R>=expand('%:h').'/'<cr>
@@ -155,15 +161,17 @@ abbrev yuo you
 " CtrlP
 let g:ctrlp_user_command = ['.git/', 'git --git-dir=%s/.git ls-files -oc --exclude-standard']
 
-" JSON
-let g:vim_json_syntax_conceal = 0
+" Show trailing whitespace with builtin match feature
+highlight TrailingWhitespace ctermbg=Red guibg=Red
+autocmd BufWinEnter * match TrailingWhitespace /\s\+$/
+" In insert mode, don't highlight trailing whitespace at cursor position
+" \%# matches cursor position, \@<! is negative lookbehind
+autocmd InsertEnter * match TrailingWhitespace /\s\+\%#\@<!$/
+autocmd InsertLeave * match TrailingWhitespace /\s\+$/
 
-" Whitespace plugin settings
-let g:ShowTrailingWhitespace = 1
-highlight ShowTrailingWhitespace ctermbg=Red guibg=Red
-let g:DeleteTrailingWhitespace = 1
-let g:DeleteTrailingWhitespace_Action = 'delete'
-autocmd BufRead,BufNewFile db/structure.sql let g:DeleteTrailingWhitespace = 0
+" Delete trailing whitespace on save with builtin autocommand
+" Exclude db/structure.sql files (they may have intentional trailing whitespace)
+autocmd BufWritePre * if expand('%:p') !~# 'db/structure\.sql$' | %s/\s\+$//e | endif
 
 " ALE (Linter) Settings
 if executable('standardrb')
@@ -193,11 +201,21 @@ set foldlevelstart=99
 runtime! macros/matchit.vim
 
 if has("autocmd")
+  " Automatically create parent directories when saving files
+  function! s:Mkdir()
+    let dir = expand('%:p:h')
+    if dir =~ '://'
+      return
+    endif
+    if !isdirectory(dir)
+      call mkdir(dir, 'p')
+      echo 'Created non-existing directory: '.dir
+    endif
+  endfunction
+  autocmd BufWritePre * call s:Mkdir()
+
   " Makefiles
   au FileType make set noexpandtab
-
-  " JSON highlighting
-  autocmd BufNewFile,BufRead *.json set ft=javascript
 
   " Markdown
   au BufNewFile,BufRead *.{md,markdown} setfiletype markdown
