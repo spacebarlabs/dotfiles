@@ -11,6 +11,7 @@
   ls = ls-files
   pfwl = push --set-upstream --force-with-lease --force-if-includes origin HEAD
   st = status
+  whoami = !echo \"$(git config user.name) <$(git config user.email)>\"
 
   # typos
   cloen = clone
@@ -40,9 +41,6 @@
   autoCorrect = immediate
 [credential]
 	helper = cache
-[user]
-	email = git@spacebarlabs.com
-	name = Benjamin Oakes
 [init]
 	defaultBranch = main
 [include]
