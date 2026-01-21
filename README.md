@@ -18,4 +18,4 @@ In `vim`, run `:PlugInstall` to install all Vim plugins
 ### Updating
 
     yadm pull
-    yadm submodule update --remote
+    yadm submodule update
