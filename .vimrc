@@ -1,18 +1,35 @@
+" Must be first. Resets vim to default settings, fixing vi bugs.
+set nocompatible
+
 if (has("termguicolors"))
   set termguicolors
 endif
 
+" Directories for swp files
+set backupdir=~/.vim/backup
+set directory=~/.vim/backup
+" Create directories if they don't exist
+if !isdirectory(&backupdir) | call mkdir(&backupdir, "p") | endif
+if !isdirectory(&directory) | call mkdir(&directory, "p") | endif
+
+" =============================================================================
+" PLUGINS
+" =============================================================================
 call plug#begin('~/.vim/plugged')
 
-" Make sure you use single quotes
+" --- Languages & Syntax ---
+Plug 'https://github.com/othree/html5.vim'
+Plug 'https://github.com/pangloss/vim-javascript'
+Plug 'https://github.com/elzr/vim-json'
+Plug 'https://github.com/vim-ruby/vim-ruby'
+Plug 'https://github.com/tpope/vim-rails'
+Plug 'https://github.com/nathangrigg/vim-beancount'
 
-Plug 'https://github.com/sheerun/vim-polyglot'
-Plug 'https://github.com/othree/html5.vim' " duplicated by polyglot?
-Plug 'https://github.com/pangloss/vim-javascript' " duplicated by polyglot?
-Plug 'https://github.com/elzr/vim-json' " duplicated by polyglot?
-Plug 'https://github.com/vim-ruby/vim-ruby' " duplicated by polyglot?
-
+" --- Git ---
 Plug 'https://github.com/airblade/vim-gitgutter'
+Plug 'https://github.com/tpope/vim-fugitive'
+
+" --- Utilities ---
 Plug 'https://github.com/bkad/CamelCaseMotion'
 Plug 'https://github.com/chrisbra/csv.vim'
 Plug 'https://github.com/dense-analysis/ale'
@@ -22,14 +39,12 @@ Plug 'https://github.com/mmai/wikilink'
 Plug 'https://github.com/kana/vim-textobj-user' " for vim-textobj-rubyblock
 Plug 'https://github.com/nelstrom/vim-textobj-rubyblock'
 Plug 'https://github.com/pbrisbin/vim-mkdir' " NOTE: As of early 2026, this is moving off GitHub but hasn't fully relocated yet
+
 Plug 'https://github.com/scrooloose/nerdtree'
 Plug 'https://github.com/tomtom/tlib_vim' " likely dependency
 Plug 'https://github.com/tpope/vim-abolish' " Want to turn fooBar into foo_bar? Press crs (coerce to snake_case). MixedCase (crm), camelCase (crc), UPPER_CASE (cru), dash-case (cr-), and dot.case (cr.) are all just 3 keystrokes away.
-Plug 'https://github.com/tpope/vim-commentary.git' "  Use gcc to comment out a line (takes a count), gc to comment out the target of a motion (for example, gcap to comment out a paragraph), gc in visual mode to comment out the selection, and gc in operator pending mode to target a comment.
+Plug 'https://github.com/tpope/vim-commentary.git' " Use gcc to comment out a line (takes a count), gc to comment out the target of a motion (for example, gcap to comment out a paragraph), gc in visual mode to comment out the selection, and gc in operator pending mode to target a comment.
 Plug 'https://github.com/tpope/vim-endwise'
-Plug 'https://github.com/tpope/vim-fugitive'
-Plug 'https://github.com/tpope/vim-git'
-Plug 'https://github.com/tpope/vim-rails'
 Plug 'https://github.com/tpope/vim-repeat'
 Plug 'https://github.com/tpope/vim-surround'
 Plug 'https://github.com/tsaleh/vim-align'
@@ -37,42 +52,31 @@ Plug 'https://github.com/vim-scripts/DeleteTrailingWhitespace'
 Plug 'https://github.com/vim-scripts/ShowTrailingWhitespace'
 Plug 'https://github.com/prabirshrestha/vim-lsp'
 
-Plug 'https://github.com/nathangrigg/vim-beancount'
+" --- Theme ---
 Plug 'https://github.com/dracula/vim', { 'as': 'dracula' }
 
-if filereadable(glob("~/.vim/local/vimplug"))
-  source ~/.vim/local/vimplug
-endif
-
-" Initialize plugin system
 call plug#end()
 
-" Don't emulate vi bugs (must be first; has side effects)
-set nocompatible
-
-set number
-set ruler
-syntax on
-set lazyredraw " Don't try to continuously update the screen during macros (makes things go faster)
-
-set smartindent
-
-"" Whitespace
-set nowrap                      " don't wrap lines
-set tabstop=2 shiftwidth=2      " a tab is two spaces
-set expandtab                   " use spaces, not tabs
-set backspace=indent,eol,start  " backspace through everything in insert mode
-
-" load the plugin and indent settings for the detected filetype
+" Enable filetype detection, plugins, and indenting
+" Must be after plug#end
 filetype plugin indent on
 
-filetype plugin on
+" =============================================================================
+" EDITOR SETTINGS
+" =============================================================================
+set number
+set ruler
+set lazyredraw        " Don't update screen during macros
+set showcmd           " Show incomplete commands
 
-" Directories for swp files
-set backupdir=~/.vim/backup
-set directory=~/.vim/backup
+" Whitespace & Indentation
+set smartindent
+set nowrap                      " Don't wrap lines by default
+set tabstop=2 shiftwidth=2      " Tab is two spaces
+set expandtab                   " Use spaces, not tabs
+set backspace=indent,eol,start  " Backspace through everything
 
-" Wrapping
+" Wrapping (visual only)
 set showbreak=...
 set wrap linebreak nolist
 
@@ -82,105 +86,73 @@ set incsearch
 set ignorecase
 set smartcase
 
-" Buffers
+" Buffers & Status
 set hidden
-
-" Status bar
 set laststatus=2
 set statusline=%<%f\ (%{&ft})\ %-4(%m%)%=%-19(%3l,%02c%03V%)
-set showcmd
 
-if has("autocmd")
-  " In Makefiles, use real tabs, not tabs expanded to spaces
-  au FileType make set noexpandtab
+" Wildmenu (command line completion)
+set wildmode=list:longest
+set wildmenu
 
-  " @see http://www.codeography.com/2010/07/13/json-syntax-highlighting-in-vim.html
-  autocmd BufNewFile,BufRead *.json set ft=javascript
+" Theme
+syntax enable
+try
+  colorscheme dracula
+catch
+  colorscheme default
+endtry
 
-  " Make sure markdown files use markdown mode
-  au BufNewFile,BufRead *.md setfiletype markdown
-  au BufNewFile,BufRead *.markdown setfiletype markdown
-
-  " Enable spell checking for markdown files
-  au BufNewFile,BufRead *.md setlocal spell
-  au BufNewFile,BufRead *.markdown setlocal spell
-
-  " Enable spell checking for git commits
-  au FileType gitcommit setlocal spell
-
-  " Resize splits when window size changes
-  au VimResized * exe "normal! \<c-w>="
-
-  " Remember last location in file, but not for commit messages.
-  " see :help last-position-jump
-  au BufReadPost * if &filetype !~ '^git\c' && line("'\"") > 0 && line("'\"") <= line("$")
-    \| exe "normal! g`\"" | endif
+" Fix truecolor bug for vim if needed
+if has('termguicolors')
+  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
 endif
 
-" use comma as <Leader> key instead of backslash
+" =============================================================================
+" MAPPINGS
+" =============================================================================
 let mapleader=","
 
-" double percentage sign in command mode is expanded
-" to directory of current file - http://vimcasts.org/e/14
-cnoremap %% <C-R>=expand('%:h').'/'<cr>
-
-" Based on http://robots.thoughtbot.com/faster-grepping-in-vim
-" bind K to grep word under cursor
-" nnoremap K :Ggrep "\b<C-R><C-W>\b"<CR>:cw<CR>
-map K <Nop>
-
-set wildmode=list:longest   "make cmdline tab completion similar to bash
-set wildmenu                "enable ctrl-n and ctrl-p to scroll thru matches
-
-syntax enable
-
-" if has('termguicolors')
-"   " fix truecolor bug for vim
-"   let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-"   let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-"   set termguicolors
-" endif
-
-syntax enable
-colorscheme dracula
-
-let g:ShowTrailingWhitespace = 1
-highlight ShowTrailingWhitespace ctermbg=Red guibg=Red
-let g:DeleteTrailingWhitespace = 1
-autocmd BufRead,BufNewFile db/structure.sql let g:DeleteTrailingWhitespace = 0
-let g:DeleteTrailingWhitespace_Action = 'delete'
-
-" Enable per-directory .vimrc files, but don't allow insecure commands.
-set exrc
-set secure
-
-" bind nerdtree to \
+" NERDTree
 map \ :NERDTreeToggle<CR>
 
+" Quick helpers
+cnoremap %% <C-R>=expand('%:h').'/'<cr>
+map K <Nop>
+
+" Indentation: Re-indent whole file and jump back
+map <leader>= gg=G''
+
+" Save mappings (Ctrl-S)
+nnoremap <silent><c-s> :<c-u>update<cr>
+vnoremap <silent><c-s> <c-c>:update<cr>gv
+inoremap <silent><c-s> <c-o>:update<cr>
+
+" Utility Mappings
 nmap <Leader>l iLorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.<esc>
 nmap <Leader>r ggIRefactor: <esc>
 nmap <Leader>f i#{__FILE__}:#{__LINE__} <esc>
 nmap <Leader>x 0f[lrx
 map <Leader>i YPIputs "<esc>A: #{(<esc>JxA)}"<esc>hi.inspect<esc>0j
-
 vmap <Leader>z :call I18nTranslateString()<CR>
 
-" Replace double quotes with single quotes on the current line.
+" Quote switching
 nmap <Leader>' :.s/"/'/g<CR>:nohlsearch<CR>
 nmap <Leader>" :.s/'/"/g<CR>:nohlsearch<CR>
 
-" Change 1.8 hash syntax on the current line to 1.9.
-" NB: this isn't perfect, but it's pretty good.
-" List of valid symbol chars: https://gist.github.com/misfo/1072693
+" Ruby 1.8 -> 1.9 hash syntax
 map <Leader>9 :.s/:\([_a-z0-9]\{1,}\) *=>/\1:/g<CR>:nohlsearch<CR>
 
-" Set a toggle for pastemode, using v which has a strong association with
-" paste
-map <leader>v :set paste!<CR>
+" Toggle paste mode
 map <Leader>p :set paste!<CR>
 
-" Rename current file. Hit enter after adjusting file name. Will reload vim
-" buffer
+" GitGutter
+set signcolumn=yes
+nmap ]h <Plug>(GitGutterNextHunk)
+nmap [h <Plug>(GitGutterPrevHunk)
+
+" Rename File
 function! RenameFile()
     let old_name = expand('%')
     let new_name = input('New file name: ', expand('%'))
@@ -192,15 +164,14 @@ function! RenameFile()
 endfunction
 map <leader>mv :call RenameFile()<cr>
 
-" Auto-save
-set updatetime=100 " needed for the next bit
-autocmd CursorHold * update " https://vi.stackexchange.com/questions/74/is-it-possible-to-make-vim-auto-save-files
+" Insert newline without entering insert mode
+noremap - o<esc>
+noremap _ O<esc>
 
-" https://www.rockyourcode.com/vim-trick-map-ctrl-s-to-save/
-nnoremap <silent><c-s> :<c-u>update<cr>
-vnoremap <silent><c-s> <c-c>:update<cr>gv
-inoremap <silent><c-s> <c-o>:update<cr>
+" Use Vim-style Y (yank line)
+map Y yy
 
+" Abbreviations
 abbrev buig bug
 abbrev contorl control
 abbrev flase false
@@ -216,19 +187,24 @@ abbrev TOOD TODO
 abbrev ture true
 abbrev yuo you
 
-" Use vim-style binding for Y, unlike nvim which does y$
-map Y yy
+" =============================================================================
+" CONFIGURATION & AUTOCOMMANDS
+" =============================================================================
 
-" Same as o, but doesn't leave you in insert.  Really nice for spacing code out.
-noremap - o<esc>
-noremap _ O<esc>
+" CtrlP
+let g:ctrlp_user_command = ['.git/', 'git --git-dir=%s/.git ls-files -oc --exclude-standard']
 
-"
-" ###########
-" linters
-"
-" See also: https://github.com/standardrb/standard/wiki/IDE:-vim
-" Use standard if available
+" JSON
+let g:vim_json_syntax_conceal = 0
+
+" Whitespace plugin settings
+let g:ShowTrailingWhitespace = 1
+highlight ShowTrailingWhitespace ctermbg=Red guibg=Red
+let g:DeleteTrailingWhitespace = 1
+let g:DeleteTrailingWhitespace_Action = 'delete'
+autocmd BufRead,BufNewFile db/structure.sql let g:DeleteTrailingWhitespace = 0
+
+" ALE (Linter) Settings
 if executable('standardrb')
   au User lsp_setup call lsp#register_server({
         \ 'name': 'standardrb',
@@ -238,84 +214,42 @@ if executable('standardrb')
 endif
 let g:ale_linters = {'ruby': ['standardrb']}
 let g:ale_fixers = {'ruby': ['standardrb']}
-
 let g:ale_fix_on_save = 0
 let g:ruby_indent_assignment_style = 'variable'
 let g:ruby_indent_hanging_elements = 0
 
-" disable diagnotic annotations in LSP, which is separate from ale
-" let g:lsp_diagnostics_enabled = 0         " disable diagnostics support
+" Security
+set exrc
+set secure
 
-" function! AleOff()
-"     let g:ale_linters = {}
-"     let g:ale_fixers = {}
-" endfunction
-"
-" :command! -nargs=0 AleOff :call AleOff()
-"
-" function! AleOn()
-"     let g:ale_linters = {'ruby': ['standardrb']}
-"     let g:ale_fixers = {'ruby': ['standardrb']}
-" endfunction
-"
-" :command! -nargs=0 AleOn :call AleOn()
+" Auto-save
+set updatetime=100
+autocmd CursorHold * update
 
-" TODO: clean this up
-" let g:ale_scss_stylelint_executable = 'stylelint'
-"
-" let g:ale_javascript_eslint_executable = 'eslint'
-"
-" let g:ale_eruby_ruumba_executable = 'bundle'
-" let g:ale_eruby_ruumba_options = '-e'
-"
-" let g:ale_ruby_ruby_executable = 'ruby'
-" let g:ale_ruby_rubocop_executable = 'bundle'
-"
-" let g:ale_linters = {
-"       \'ruby': ['rubocop', 'ruby'],
-"       \'eruby': ['erubi', 'ruumba'],
-"       \'javascript': ['eslint'],
-"       \'scss': ['stylelint'],
-"       \}
-"
-" let g:ale_fixers = {
-"       \'*': ['remove_trailing_lines'],
-"       \'javascript': ['eslint'],
-"       \'scss': ['stylelint'],
-"       \'ruby': ['rubocop'],
-"       \}
-" let g:ale_fix_on_save_ignore = ['stylelint', 'eslint', 'rubocop']
-" let g:ale_fix_on_save = 1
-"
-" /linters
-" ###########
-"
-
-" gitgutter: make the gutter always show, so it doesn't shift
-set signcolumn=yes
-" aliases for gitgutter
-nmap ]h <Plug>(GitGutterNextHunk)
-nmap [h <Plug>(GitGutterPrevHunk)
-
-" Re-indent the whole file and go back to where you were
-map <leader>= gg=G''
-
-" don't load everything in .git into the ctrl-p buffer
-" source: https://medium.com/a-tiny-piece-of-vim/making-ctrlp-vim-load-100x-faster-7a722fae7df6
-let g:ctrlp_user_command = ['.git/', 'git --git-dir=%s/.git ls-files -oc --exclude-standard']
-
+" Folding
 set foldmethod=syntax
-" foldevalstart approximates a 'don't automatically fold everything when a file is
-" opened' setting
 set foldlevelstart=99
-
-" don't hide quoting in json files
-" https://github.com/elzr/vim-json#common-problems
-let g:vim_json_syntax_conceal = 0
-
 runtime! macros/matchit.vim
 
-" putting this here so users can override anything specified above
-if filereadable(glob("~/.vimrc.local"))
-  source ~/.vimrc.local
+if has("autocmd")
+  " Makefiles
+  au FileType make set noexpandtab
+
+  " JSON highlighting
+  autocmd BufNewFile,BufRead *.json set ft=javascript
+
+  " Markdown
+  au BufNewFile,BufRead *.{md,markdown} setfiletype markdown
+  au BufNewFile,BufRead *.{md,markdown} setlocal spell
+
+  " Git commits
+  au FileType gitcommit setlocal spell
+
+  " Resize splits when window size changes
+  au VimResized * exe "normal! \<c-w>="
+
+  " Remember last location in file
+  " (Checks if filetype is NOT git commit, then jumps to last known cursor position)
+  au BufReadPost * if &filetype !~ '^git\c' && line("'\"") > 0 && line("'\"") <= line("$")
+    \| exe "normal! g`\"" | endif
 endif

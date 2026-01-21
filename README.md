@@ -4,12 +4,14 @@ The dotfiles we use. They use the [YADM](https://yadm.io/) format.
 
 ## Installation
 
+See also: https://github.com/spacebarlabs/apt.spacebarlabs.com
+
 Assuming you're using Debian/Ubuntu:
 
-    sudo apt install yadm
-    yadm clone --recurse-submodules git@github.com:spacebarlabs/dotfiles.git
-    # OR
-    # yadm clone --recurse-submodules https://github.com/spacebarlabs/dotfiles.git
+```bash
+sudo apt install yadm
+yadm clone --recurse-submodules https://github.com/spacebarlabs/dotfiles
+```
 
 #### Post install
 
@@ -17,5 +19,7 @@ In `vim`, run `:PlugInstall` to install all Vim plugins
 
 ### Updating
 
-    yadm pull
-    yadm submodule update
+```bash
+yadm pull
+yadm submodule update
+```
