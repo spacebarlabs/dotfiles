@@ -25,3 +25,9 @@ yadm clone --recurse-submodules https://github.com/spacebarlabs/dotfiles
 yadm pull
 yadm subup # see .gitconfig for details
 ```
+
+## Automated Maintenance
+
+This repository uses a GitHub Actions workflow to automatically update all submodules weekly.  The workflow creates a pull request with the changes if updates are available and can be manually triggered from the Actions tab in GitHub.
+
+This keeps all Vim plugins, Tmux plugins, and Oh My Zsh up-to-date automatically, similar to how Dependabot works for package dependencies.
