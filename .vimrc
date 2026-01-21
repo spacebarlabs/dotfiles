@@ -15,50 +15,11 @@ if !isdirectory(&directory) | call mkdir(&directory, "p") | endif
 " =============================================================================
 " PLUGINS
 " =============================================================================
-call plug#begin('~/.vim/plugged')
-
-" --- Languages & Syntax ---
-Plug 'https://github.com/othree/html5.vim'
-Plug 'https://github.com/pangloss/vim-javascript'
-Plug 'https://github.com/elzr/vim-json'
-Plug 'https://github.com/vim-ruby/vim-ruby'
-Plug 'https://github.com/tpope/vim-rails'
-Plug 'https://github.com/nathangrigg/vim-beancount'
-
-" --- Git ---
-Plug 'https://github.com/airblade/vim-gitgutter'
-Plug 'https://github.com/tpope/vim-fugitive'
-
-" --- Utilities ---
-Plug 'https://github.com/bkad/CamelCaseMotion'
-Plug 'https://github.com/chrisbra/csv.vim'
-Plug 'https://github.com/dense-analysis/ale'
-Plug 'https://github.com/ctrlpvim/ctrlp.vim'
-Plug 'https://github.com/MarcWeber/vim-addon-mw-utils' " likely dependency
-Plug 'https://github.com/mmai/wikilink'
-Plug 'https://github.com/kana/vim-textobj-user' " for vim-textobj-rubyblock
-Plug 'https://github.com/nelstrom/vim-textobj-rubyblock'
-Plug 'https://github.com/pbrisbin/vim-mkdir' " NOTE: As of early 2026, this is moving off GitHub but hasn't fully relocated yet
-
-Plug 'https://github.com/scrooloose/nerdtree'
-Plug 'https://github.com/tomtom/tlib_vim' " likely dependency
-Plug 'https://github.com/tpope/vim-abolish' " Want to turn fooBar into foo_bar? Press crs (coerce to snake_case). MixedCase (crm), camelCase (crc), UPPER_CASE (cru), dash-case (cr-), and dot.case (cr.) are all just 3 keystrokes away.
-Plug 'https://github.com/tpope/vim-commentary.git' " Use gcc to comment out a line (takes a count), gc to comment out the target of a motion (for example, gcap to comment out a paragraph), gc in visual mode to comment out the selection, and gc in operator pending mode to target a comment.
-Plug 'https://github.com/tpope/vim-endwise'
-Plug 'https://github.com/tpope/vim-repeat'
-Plug 'https://github.com/tpope/vim-surround'
-Plug 'https://github.com/tsaleh/vim-align'
-Plug 'https://github.com/vim-scripts/DeleteTrailingWhitespace'
-Plug 'https://github.com/vim-scripts/ShowTrailingWhitespace'
-Plug 'https://github.com/prabirshrestha/vim-lsp'
-
-" --- Theme ---
-Plug 'https://github.com/dracula/vim', { 'as': 'dracula' }
-
-call plug#end()
+"
+" Plugins are managed as git submodules in .vim/pack/plugins/start/
+" They are automatically loaded by Vim's native package management
 
 " Enable filetype detection, plugins, and indenting
-" Must be after plug#end
 filetype plugin indent on
 
 " =============================================================================
