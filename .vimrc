@@ -7,10 +7,6 @@ call plug#begin('~/.vim/plugged')
 " Make sure you use single quotes
 
 Plug 'https://github.com/sheerun/vim-polyglot'
-Plug 'https://github.com/othree/html5.vim' " duplicated by polyglot?
-Plug 'https://github.com/pangloss/vim-javascript' " duplicated by polyglot?
-Plug 'https://github.com/elzr/vim-json' " duplicated by polyglot?
-Plug 'https://github.com/vim-ruby/vim-ruby' " duplicated by polyglot?
 
 Plug 'https://github.com/airblade/vim-gitgutter'
 Plug 'https://github.com/bkad/CamelCaseMotion'
@@ -52,7 +48,6 @@ set nocompatible
 
 set number
 set ruler
-syntax on
 set lazyredraw " Don't try to continuously update the screen during macros (makes things go faster)
 
 set smartindent
@@ -65,8 +60,6 @@ set backspace=indent,eol,start  " backspace through everything in insert mode
 
 " load the plugin and indent settings for the detected filetype
 filetype plugin indent on
-
-filetype plugin on
 
 " Directories for swp files
 set backupdir=~/.vim/backup
@@ -97,13 +90,9 @@ if has("autocmd")
   " @see http://www.codeography.com/2010/07/13/json-syntax-highlighting-in-vim.html
   autocmd BufNewFile,BufRead *.json set ft=javascript
 
-  " Make sure markdown files use markdown mode
-  au BufNewFile,BufRead *.md setfiletype markdown
-  au BufNewFile,BufRead *.markdown setfiletype markdown
-
-  " Enable spell checking for markdown files
-  au BufNewFile,BufRead *.md setlocal spell
-  au BufNewFile,BufRead *.markdown setlocal spell
+  " Make sure markdown files use markdown mode and enable spell checking
+  au BufNewFile,BufRead *.{md,markdown} setfiletype markdown
+  au BufNewFile,BufRead *.{md,markdown} setlocal spell
 
   " Enable spell checking for git commits
   au FileType gitcommit setlocal spell
@@ -131,8 +120,6 @@ map K <Nop>
 
 set wildmode=list:longest   "make cmdline tab completion similar to bash
 set wildmenu                "enable ctrl-n and ctrl-p to scroll thru matches
-
-syntax enable
 
 " if has('termguicolors')
 "   " fix truecolor bug for vim
@@ -174,9 +161,7 @@ nmap <Leader>" :.s/'/"/g<CR>:nohlsearch<CR>
 " List of valid symbol chars: https://gist.github.com/misfo/1072693
 map <Leader>9 :.s/:\([_a-z0-9]\{1,}\) *=>/\1:/g<CR>:nohlsearch<CR>
 
-" Set a toggle for pastemode, using v which has a strong association with
-" paste
-map <leader>v :set paste!<CR>
+" Set a toggle for pastemode
 map <Leader>p :set paste!<CR>
 
 " Rename current file. Hit enter after adjusting file name. Will reload vim
