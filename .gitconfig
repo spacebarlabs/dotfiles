@@ -11,6 +11,7 @@
   ls = ls-files
   pfwl = push --set-upstream --force-with-lease --force-if-includes origin HEAD
   st = status
+  subup = "!git submodule sync --recursive && git submodule update --init --recursive"
   whoami = !echo \"$(git config user.name) <$(git config user.email)>\"
 
   # typos
