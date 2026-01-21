@@ -30,7 +30,7 @@
   editor = /usr/bin/vim
   preloadindex = true
   excludesfile = ~/.gitconfig.d/gitignore
-  attributesfile = ~/.personal/gitconfig.d/gitattributes
+  attributesfile = ~/.gitconfig.d/gitattributes
 [merge]
   tool = /usr/bin/vimdiff
 [push]
