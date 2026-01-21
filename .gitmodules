@@ -2,3 +2,6 @@
 	path = .oh-my-zsh
 	url = https://github.com/ohmyzsh/ohmyzsh.git
 	shallow = true
+[submodule "tmux/plugins/dracula"]
+	path = tmux/plugins/dracula
+	url = https://github.com/dracula/tmux.git
