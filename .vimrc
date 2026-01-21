@@ -176,7 +176,13 @@ endif
 
 " Enable format on save for vim-lsp
 function! s:on_lsp_buffer_enabled() abort
-  autocmd BufWritePre <buffer> LspDocumentFormatSync
+  setlocal omnifunc=lsp#complete
+  if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
+  
+  augroup lsp_format_on_save
+    autocmd! * <buffer>
+    autocmd BufWritePre <buffer> LspDocumentFormatSync
+  augroup END
 endfunction
 
 augroup lsp_install
