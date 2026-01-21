@@ -161,9 +161,6 @@ abbrev yuo you
 " CtrlP
 let g:ctrlp_user_command = ['.git/', 'git --git-dir=%s/.git ls-files -oc --exclude-standard']
 
-" JSON
-let g:vim_json_syntax_conceal = 0
-
 " Show trailing whitespace with builtin match feature
 highlight TrailingWhitespace ctermbg=Red guibg=Red
 autocmd BufWinEnter * match TrailingWhitespace /\s\+$/
@@ -219,9 +216,6 @@ if has("autocmd")
 
   " Makefiles
   au FileType make set noexpandtab
-
-  " JSON highlighting
-  autocmd BufNewFile,BufRead *.json set ft=javascript
 
   " Markdown
   au BufNewFile,BufRead *.{md,markdown} setfiletype markdown
