@@ -39,8 +39,6 @@
   ff = only
 [help]
   autoCorrect = immediate
-[credential]
-	helper = cache
 [init]
 	defaultBranch = main
 [include]
