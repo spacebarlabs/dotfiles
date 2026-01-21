@@ -15,7 +15,7 @@ yadm clone --recurse-submodules https://github.com/spacebarlabs/dotfiles
 
 #### Post install
 
-In `vim`, run `:PlugInstall` to install all Vim plugins
+Vim plugins are managed as git submodules and will be automatically loaded by Vim's native package management.
 
 ### Updating
 
