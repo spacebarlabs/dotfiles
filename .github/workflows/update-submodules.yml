@@ -31,8 +31,8 @@ jobs:
           # Update all submodules to their latest commits
           git submodule update --remote --merge
           
-          # Check if there are any changes
-          if git diff --quiet && git diff --cached --quiet; then
+          # Check if there are any changes (including unstaged, staged, and untracked files)
+          if [ -z "$(git status --porcelain)" ]; then
             echo "has_changes=false" >> "$GITHUB_OUTPUT"
             echo "No submodule updates available"
           else
@@ -44,16 +44,20 @@ jobs:
         if: steps.update.outputs.has_changes == 'true'
         id: changes
         run: |
-          # Get list of updated submodules
-          CHANGES=$(git diff --submodule=log | grep -E "^Submodule" || echo "")
+          # Get detailed list of updated submodules using git submodule status
+          CHANGES=$(git submodule status | grep "^+" || echo "")
           if [ -n "$CHANGES" ]; then
             {
               echo "changes<<EOF"
+              echo "Updated submodules:"
               echo "$CHANGES"
+              echo ""
+              echo "Detailed changes:"
+              git diff --submodule=log || true
               echo "EOF"
             } >> "$GITHUB_OUTPUT"
           else
-            echo "changes=No changes detected" >> "$GITHUB_OUTPUT"
+            echo "changes=No detailed changes available" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Create Pull Request
