@@ -178,9 +178,9 @@ endif
 function! s:on_lsp_buffer_enabled() abort
   setlocal omnifunc=lsp#complete
   if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
-  
+
   augroup lsp_format_on_save
-    autocmd! * <buffer>
+    autocmd! <buffer>
     autocmd BufWritePre <buffer> LspDocumentFormatSync
   augroup END
 endfunction
