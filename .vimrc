@@ -165,7 +165,7 @@ let g:DeleteTrailingWhitespace = 1
 let g:DeleteTrailingWhitespace_Action = 'delete'
 autocmd BufRead,BufNewFile db/structure.sql let g:DeleteTrailingWhitespace = 0
 
-" ALE (Linter) Settings
+" vim-lsp Settings
 if executable('standardrb')
   au User lsp_setup call lsp#register_server({
         \ 'name': 'standardrb',
@@ -173,9 +173,17 @@ if executable('standardrb')
         \ 'allowlist': ['ruby'],
         \ })
 endif
-let g:ale_linters = {'ruby': ['standardrb']}
-let g:ale_fixers = {'ruby': ['standardrb']}
-let g:ale_fix_on_save = 0
+
+" Enable format on save for vim-lsp
+function! s:on_lsp_buffer_enabled() abort
+  autocmd BufWritePre <buffer> LspDocumentFormatSync
+endfunction
+
+augroup lsp_install
+  au!
+  autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
+augroup END
+
 let g:ruby_indent_assignment_style = 'variable'
 let g:ruby_indent_hanging_elements = 0
 
