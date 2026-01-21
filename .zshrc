@@ -4,7 +4,7 @@ export ZSH_CUSTOM=$HOME/.oh-my-zsh-custom
 export ZSH_THEME="spacebarlabs"
 plugins=(git rails ruby gem vi-mode bundler)
 
-source $ZSH/oh-my-zsh.sh
+source "$ZSH/oh-my-zsh.sh"
 
 export LC_ALL=en_US.UTF-8
 
@@ -32,23 +32,23 @@ alias ungron="gron --ungron"
 # From a PeepCode video
 take() {
   mkdir -p "$1"
-  cd "$1"
+  cd "$1" || return
 }
 
 # No more cd ../../../.. but up 4
 # From http://serverfault.com/a/28649/22593
 up() {
   local d=""
-  limit=$1
+  local limit="$1"
   for ((i=1 ; i <= limit ; i++))
     do
       d=$d/..
     done
-  d=$(echo $d | sed 's/^\///')
+  d=$(echo "$d" | sed 's/^\///')
   if [ -z "$d" ]; then
     d=..
   fi
-  cd $d
+  cd "$d" || return
 }
 
 PATH=$PATH:$HOME/bin # Make personal scripts available
@@ -60,7 +60,7 @@ export NOKOGIRI_USE_SYSTEM_LIBRARIES=1
 
 # Prevent warnings if the user has not set up a tmux user.conf file
 if [ ! -f "$HOME/.tmux/user.conf" ]; then
-  touch $HOME/.tmux/user.conf
+  touch "$HOME/.tmux/user.conf"
 fi
 
 eval "$(~/.local/bin/mise activate zsh)"
