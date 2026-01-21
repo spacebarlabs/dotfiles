@@ -100,6 +100,8 @@ syntax enable
 " endif
 
 syntax enable
+" Load packages explicitly to ensure dracula theme is available
+packloadall
 colorscheme dracula
 
 let g:ShowTrailingWhitespace = 1
