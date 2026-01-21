@@ -28,6 +28,8 @@ jobs:
         run: |
           echo "Testing .zshrc..."
           # Install oh-my-zsh (required for .zshrc)
+          # Note: This uses the official oh-my-zsh installation script
+          # For enhanced security in production, consider pinning to a specific commit
           sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
           
           # Create custom theme directory and copy theme
@@ -61,8 +63,8 @@ jobs:
           # Install vim plugins (this will install dracula theme and other required plugins)
           vim -u .vimrc +PlugInstall +qall
           
-          # Test vim config by opening and closing vim
-          vim -u .vimrc --noplugin -c "quit"
+          # Test vim config by opening and closing vim with plugins loaded
+          vim -u .vimrc -c "quit"
           echo "Vim config loaded successfully"
 
       - name: Validate Tmux configuration
@@ -92,8 +94,8 @@ jobs:
       - name: Validate Ruby gem configuration
         run: |
           echo "Testing .gemrc..."
-          # Test gemrc syntax by loading it
-          ruby -e "require 'yaml'; YAML.load_file('.gemrc')"
+          # Test gemrc syntax by loading it safely
+          ruby -e "require 'yaml'; YAML.safe_load_file('.gemrc', permitted_classes: [Symbol])"
           echo "Gem config loaded successfully"
 
       - name: Validate IRB configuration
