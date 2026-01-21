@@ -158,12 +158,15 @@ let g:ctrlp_user_command = ['.git/', 'git --git-dir=%s/.git ls-files -oc --exclu
 " JSON
 let g:vim_json_syntax_conceal = 0
 
-" Whitespace plugin settings
-let g:ShowTrailingWhitespace = 1
-highlight ShowTrailingWhitespace ctermbg=Red guibg=Red
-let g:DeleteTrailingWhitespace = 1
-let g:DeleteTrailingWhitespace_Action = 'delete'
-autocmd BufRead,BufNewFile db/structure.sql let g:DeleteTrailingWhitespace = 0
+" Show trailing whitespace with builtin match feature
+highlight TrailingWhitespace ctermbg=Red guibg=Red
+autocmd BufWinEnter * match TrailingWhitespace /\s\+$/
+autocmd InsertEnter * match TrailingWhitespace /\s\+\%#\@<!$/
+autocmd InsertLeave * match TrailingWhitespace /\s\+$/
+
+" Delete trailing whitespace on save with builtin autocommand
+" Exclude db/structure.sql files
+autocmd BufWritePre * if expand('%:p') !~# 'db/structure\.sql$' | %s/\s\+$//e | endif
 
 " ALE (Linter) Settings
 if executable('standardrb')
