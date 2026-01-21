@@ -1,11 +1,43 @@
-[include]
-  # load everyone's shared gitconfig
-  path = ~/.gitconfig.d/shared
+[alias]
+  br = branch
+  ci = commit
+  co = checkout
+  dc = diff --cached
+  df = diff --color --no-prefix
+  dfw = diff --word-diff=color
+  git = !exec git
+  lg = log -p --no-prefix
+  lp = log --oneline --graph --color
+  ls = ls-files
+  pfwl = push --set-upstream --force-with-lease --force-if-includes origin HEAD
+  st = status
 
-  # load local changes last so personal settings can override shared settings
-  path = ~/.gitconfig.d/user
-  path = ~/.gitconfig.d/local
-  path = ~/.gitconfig.d/gitflow
+  # typos
+  cloen = clone
+  ic = commit
+  oc = checkout
+  pll = pull
+  pwfl = push --set-upstream --force-with-lease --force-if-includes origin HEAD
+  pwlf = push --set-upstream --force-with-lease --force-if-includes origin HEAD
+  upll = pull
+[color]
+  status = true
+  diff = true
+  ui = true
+[core]
+  pager = "less -F -X"
+  editor = /usr/bin/vim
+  preloadindex = true
+  excludesfile = ~/.gitconfig.d/gitignore
+  attributesfile = ~/.personal/gitconfig.d/gitattributes
+[merge]
+  tool = /usr/bin/vimdiff
+[push]
+  default = simple
+[pull]
+  ff = only
+[help]
+  autoCorrect = immediate
 [credential]
 	helper = cache
 [user]
@@ -13,3 +45,8 @@
 	name = Benjamin Oakes
 [init]
 	defaultBranch = main
+[include]
+  # load local changes last so personal settings can override shared settings
+  path = ~/.gitconfig.d/user
+  path = ~/.gitconfig.d/local
+  path = ~/.gitconfig.d/gitflow
