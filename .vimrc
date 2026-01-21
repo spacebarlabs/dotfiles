@@ -188,7 +188,7 @@ abbrev ture true
 abbrev yuo you
 
 " =============================================================================
-" 5. CONFIGURATION & AUTOCOMMANDS
+" CONFIGURATION & AUTOCOMMANDS
 " =============================================================================
 
 " CtrlP

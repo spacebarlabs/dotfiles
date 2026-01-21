@@ -27,7 +27,7 @@
   ui = true
 [core]
   pager = "less -F -X"
-  editor = /usr/bin/vim
+  editor = vim
   preloadindex = true
   excludesfile = ~/.gitconfig.d/gitignore
   attributesfile = ~/.gitconfig.d/gitattributes
