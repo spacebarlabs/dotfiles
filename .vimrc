@@ -43,7 +43,7 @@ Plug 'https://github.com/pbrisbin/vim-mkdir' " NOTE: As of early 2026, this is m
 Plug 'https://github.com/scrooloose/nerdtree'
 Plug 'https://github.com/tomtom/tlib_vim' " likely dependency
 Plug 'https://github.com/tpope/vim-abolish' " Want to turn fooBar into foo_bar? Press crs (coerce to snake_case). MixedCase (crm), camelCase (crc), UPPER_CASE (cru), dash-case (cr-), and dot.case (cr.) are all just 3 keystrokes away.
-Plug 'https://github.com/tpope/vim-commentary.git' "  Use gcc to comment out a line (takes a count), gc to comment out the target of a motion (for example, gcap to comment out a paragraph), gc in visual mode to comment out the selection, and gc in operator pending mode to target a comment.
+Plug 'https://github.com/tpope/vim-commentary.git' " Use gcc to comment out a line (takes a count), gc to comment out the target of a motion (for example, gcap to comment out a paragraph), gc in visual mode to comment out the selection, and gc in operator pending mode to target a comment.
 Plug 'https://github.com/tpope/vim-endwise'
 Plug 'https://github.com/tpope/vim-repeat'
 Plug 'https://github.com/tpope/vim-surround'
