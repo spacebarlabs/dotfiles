@@ -2,50 +2,8 @@ if (has("termguicolors"))
   set termguicolors
 endif
 
-call plug#begin('~/.vim/plugged')
-
-" Make sure you use single quotes
-
-Plug 'https://github.com/sheerun/vim-polyglot'
-Plug 'https://github.com/othree/html5.vim' " duplicated by polyglot?
-Plug 'https://github.com/pangloss/vim-javascript' " duplicated by polyglot?
-Plug 'https://github.com/elzr/vim-json' " duplicated by polyglot?
-Plug 'https://github.com/vim-ruby/vim-ruby' " duplicated by polyglot?
-
-Plug 'https://github.com/airblade/vim-gitgutter'
-Plug 'https://github.com/bkad/CamelCaseMotion'
-Plug 'https://github.com/chrisbra/csv.vim'
-Plug 'https://github.com/dense-analysis/ale'
-Plug 'https://github.com/ctrlpvim/ctrlp.vim'
-Plug 'https://github.com/MarcWeber/vim-addon-mw-utils' " likely dependency
-Plug 'https://github.com/mmai/wikilink'
-Plug 'https://github.com/kana/vim-textobj-user' " for vim-textobj-rubyblock
-Plug 'https://github.com/nelstrom/vim-textobj-rubyblock'
-Plug 'https://github.com/pbrisbin/vim-mkdir' " NOTE: As of early 2026, this is moving off GitHub but hasn't fully relocated yet
-Plug 'https://github.com/scrooloose/nerdtree'
-Plug 'https://github.com/tomtom/tlib_vim' " likely dependency
-Plug 'https://github.com/tpope/vim-abolish' " Want to turn fooBar into foo_bar? Press crs (coerce to snake_case). MixedCase (crm), camelCase (crc), UPPER_CASE (cru), dash-case (cr-), and dot.case (cr.) are all just 3 keystrokes away.
-Plug 'https://github.com/tpope/vim-commentary.git' "  Use gcc to comment out a line (takes a count), gc to comment out the target of a motion (for example, gcap to comment out a paragraph), gc in visual mode to comment out the selection, and gc in operator pending mode to target a comment.
-Plug 'https://github.com/tpope/vim-endwise'
-Plug 'https://github.com/tpope/vim-fugitive'
-Plug 'https://github.com/tpope/vim-git'
-Plug 'https://github.com/tpope/vim-rails'
-Plug 'https://github.com/tpope/vim-repeat'
-Plug 'https://github.com/tpope/vim-surround'
-Plug 'https://github.com/tsaleh/vim-align'
-Plug 'https://github.com/vim-scripts/DeleteTrailingWhitespace'
-Plug 'https://github.com/vim-scripts/ShowTrailingWhitespace'
-Plug 'https://github.com/prabirshrestha/vim-lsp'
-
-Plug 'https://github.com/nathangrigg/vim-beancount'
-Plug 'https://github.com/dracula/vim', { 'as': 'dracula' }
-
-if filereadable(glob("~/.vim/local/vimplug"))
-  source ~/.vim/local/vimplug
-endif
-
-" Initialize plugin system
-call plug#end()
+" Plugins are managed as git submodules in .vim/pack/plugins/start/
+" Vim 8+ natively supports packages in the pack directory structure
 
 " Don't emulate vi bugs (must be first; has side effects)
 set nocompatible

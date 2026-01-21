@@ -8,13 +8,16 @@ Assuming you're using Debian/Ubuntu:
 
     curl -L https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh | sh
     sudo apt install yadm
-    yadm clone git@github.com:spacebarlabs/dotfiles.git
+    yadm clone --recurse-submodules git@github.com:spacebarlabs/dotfiles.git
     # OR
-    # yadm clone https://github.com/spacebarlabs/dotfiles.git
+    # yadm clone --recurse-submodules https://github.com/spacebarlabs/dotfiles.git
 
 #### Post install
 
-In `vim`, run `:PlugInstall` to install all Vim plugins
+Vim plugins are managed as git submodules and will be automatically loaded from `.vim/pack/plugins/start/`.
+If you cloned without `--recurse-submodules`, run:
+
+    yadm submodule update --init --recursive
 
 ### Updating
 
