@@ -58,14 +58,6 @@
 	path = .vim/pack/plugins/start/vim-textobj-rubyblock
 	url = https://github.com/nelstrom/vim-textobj-rubyblock
 	shallow = true
-[submodule ".vim/pack/plugins/start/vim-mkdir"]
-	path = .vim/pack/plugins/start/vim-mkdir
-	url = https://github.com/pbrisbin/vim-mkdir
-	shallow = true
-[submodule ".vim/pack/plugins/start/nerdtree"]
-	path = .vim/pack/plugins/start/nerdtree
-	url = https://github.com/scrooloose/nerdtree
-	shallow = true
 [submodule ".vim/pack/plugins/start/tlib_vim"]
 	path = .vim/pack/plugins/start/tlib_vim
 	url = https://github.com/tomtom/tlib_vim
@@ -94,14 +86,7 @@
 	path = .vim/pack/plugins/start/vim-align
 	url = https://github.com/tsaleh/vim-align
 	shallow = true
-[submodule ".vim/pack/plugins/start/DeleteTrailingWhitespace"]
-	path = .vim/pack/plugins/start/DeleteTrailingWhitespace
-	url = https://github.com/vim-scripts/DeleteTrailingWhitespace
-	shallow = true
-[submodule ".vim/pack/plugins/start/ShowTrailingWhitespace"]
-	path = .vim/pack/plugins/start/ShowTrailingWhitespace
-	url = https://github.com/vim-scripts/ShowTrailingWhitespace
-	shallow = true
+
 [submodule ".vim/pack/plugins/start/vim-lsp"]
 	path = .vim/pack/plugins/start/vim-lsp
 	url = https://github.com/prabirshrestha/vim-lsp
