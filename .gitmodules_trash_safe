@@ -1,0 +1,6 @@
+# These paths contain git submodules that are safe to trash.  This allows
+# submodule deletion to be handled more easily.
+.vim/pack/plugins/start
+.tmux/plugins
+
+# Add other plugin folders here as needed

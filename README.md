@@ -23,7 +23,7 @@ yadm clone --recurse-submodules https://github.com/spacebarlabs/dotfiles
 
 ```bash
 yadm pull
-yadm subup # see .gitconfig for details
+yadm refresh # see .gitconfig for details
 ```
 
 ## Automated Maintenance
