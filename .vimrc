@@ -15,6 +15,7 @@ if !isdirectory(&directory) | call mkdir(&directory, "p") | endif
 " =============================================================================
 " PLUGINS
 " =============================================================================
+"
 " Plugins are managed as git submodules in .vim/pack/plugins/start/
 " They are automatically loaded by Vim's native package management
 
