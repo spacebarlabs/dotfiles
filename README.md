@@ -2,9 +2,15 @@
 
 The dotfiles we use. They use the [YADM](https://yadm.io/) format.
 
-## Installation
+## Philosophy
+
+Prefer git submodules over the various plugin managers (which often use git ultimately anyway).
+
+The aim is to install dependencies (apt, etc) in a single command and then install dotfiles in a single command.
 
 See also: [apt.spacebarlabs.com](https://github.com/spacebarlabs/apt.spacebarlabs.com)
+
+## Installation
 
 Assuming you're using Debian/Ubuntu:
 
@@ -13,7 +19,7 @@ sudo apt install yadm
 yadm clone --recurse-submodules https://github.com/spacebarlabs/dotfiles
 ```
 
-### Updating
+## Updating
 
 ```bash
 yadm pull
