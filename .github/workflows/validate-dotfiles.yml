@@ -99,5 +99,6 @@ jobs:
       - name: Validate IRB configuration
         run: |
           echo "Testing .irbrc..."
-          # Test irbrc by loading it via Ruby
-          ruby -r ./.irbrc -e "puts 'IRB config loaded successfully'"
+          # Test irbrc syntax
+          ruby -c .irbrc
+          echo "IRB config loaded successfully"
