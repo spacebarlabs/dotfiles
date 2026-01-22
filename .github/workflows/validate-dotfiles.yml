@@ -63,8 +63,16 @@ jobs:
           export ZSH_DISABLE_COMPFIX="true"
           
           # Test zsh config loads without errors
-          # Suppress stty error which is expected in non-interactive mode
-          zsh -c "source .zshrc 2>&1 | grep -v \"stty: 'standard input': Inappropriate ioctl for device\" && echo 'Zsh config loaded successfully'"
+          # Filter stty warning but check zsh exit code using PIPESTATUS
+          OUTPUT=$(zsh -c "source .zshrc" 2>&1)
+          ZSH_EXIT=$?
+          echo "$OUTPUT" | grep -v "stty: 'standard input': Inappropriate ioctl for device" || true
+          if [ $ZSH_EXIT -eq 0 ]; then
+            echo 'Zsh config loaded successfully'
+          else
+            echo 'Zsh config failed to load'
+            exit 1
+          fi
 
       - name: Validate Vim configuration
         run: |
