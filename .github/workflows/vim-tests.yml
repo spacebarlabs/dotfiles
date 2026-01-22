@@ -13,5 +13,5 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y vim
 
       - name: Run Vim Tests
-        # -S points to the runner inside .vim/tests/
-        run: vim -Es -u NONE -S .vim/tests/test_runner.vim
+        # 2>&1 ensures we see the output in the GitHub logs
+        run: vim -Es -u NONE -S .vim/tests/test_runner.vim 2>&1
