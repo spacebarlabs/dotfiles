@@ -34,12 +34,13 @@ function! s:FilterLines(lines)
 
     " C. Remove Structural Noise
     " 1. Keywords (end, endif, etc)
-    if line =~ '^[+\- ]\?\s*\b\(end\|endif\|endfunction\|endfor\|endwhile\|endtry\|fi\|esac\|done\)\b\s*$'
+    " FIX: Use \< and \> for word boundaries instead of \b
+    if line =~ '^[+\- ]\?\s*\<\(end\|endif\|endfunction\|endfor\|endwhile\|endtry\|fi\|esac\|done\)\>\s*$'
       continue
     endif
 
     " 2. Code Symbols: }, ], ), }; 
-    " FIX: ] must be first in the [] set to be matched correctly
+    " FIX: ] is first in the set to avoid regex parsing errors
     if line =~ '^[+\- ]\?\s*[\]})]\+;\?\s*$'
       continue
     endif
@@ -148,7 +149,6 @@ function! Test_LLMCommit()
     call add(l:errors, "[Comments] Expected " . string(l:expected) . " but got " . string(l:actual))
   endif
 
-  " Throw all errors at once so they appear in CI logs
   if len(l:errors) > 0
     throw join(l:errors, " | ")
   endif
