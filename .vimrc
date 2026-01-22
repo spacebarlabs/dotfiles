@@ -234,6 +234,23 @@ if has("autocmd")
   au BufNewFile,BufRead *.{md,markdown} setfiletype markdown
   au BufNewFile,BufRead *.{md,markdown} setlocal spell
 
+  " Markdown fenced code block syntax highlighting
+  let g:markdown_fenced_languages = [
+    \ 'ruby',
+    \ 'erb=eruby',
+    \ 'javascript',
+    \ 'js=javascript',
+    \ 'json=javascript',
+    \ 'css',
+    \ 'sass',
+    \ 'scss=sass',
+    \ 'html',
+    \ 'bash=sh',
+    \ 'sh',
+    \ 'sql',
+    \ 'xml'
+  \ ]
+
   " Git commits
   au FileType gitcommit setlocal spell
 
