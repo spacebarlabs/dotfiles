@@ -18,9 +18,6 @@ bindkey '^R' history-incremental-search-backward
 autoload -U zrecompile
 
 #ignore obnoxious stuff
-# Use zstyle to disable correction for specific commands
-zstyle ':completion:*:*:git:*' command-path /usr/bin/git
-zstyle ':completion:*:(git|rake):*' accept-exact-dirs true
 alias git='noglob git'
 alias rake='noglob rake'
 
