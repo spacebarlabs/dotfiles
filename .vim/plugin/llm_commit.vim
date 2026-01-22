@@ -56,6 +56,32 @@ function! s:FilterLines(lines)
   return l:clean_lines
 endfunction
 
+" --- Strip Wrapping Characters ---
+function! s:StripWrapping(text)
+  let l:cleaned = a:text
+  
+  " Remove leading/trailing whitespace
+  let l:cleaned = substitute(l:cleaned, '^\s\+', '', '')
+  let l:cleaned = substitute(l:cleaned, '\s\+$', '', '')
+  
+  " Remove wrapping backticks (single or triple)
+  " Match ```...``` or `...`
+  " Use \_. to match any character including newlines
+  let l:cleaned = substitute(l:cleaned, '^```\(\_.*\)```$', '\1', '')
+  let l:cleaned = substitute(l:cleaned, '^`\(\_.*\)`$', '\1', '')
+  
+  " Remove wrapping quotes (single or double)
+  " Use \_. to match any character including newlines
+  let l:cleaned = substitute(l:cleaned, '^"\(\_.*\)"$', '\1', '')
+  let l:cleaned = substitute(l:cleaned, "^'\\(\\_.*\\)'$", '\1', '')
+  
+  " Remove leading/trailing whitespace again after removing wrappers
+  let l:cleaned = substitute(l:cleaned, '^\s\+', '', '')
+  let l:cleaned = substitute(l:cleaned, '\s\+$', '', '')
+  
+  return l:cleaned
+endfunction
+
 " --- Main Function ---
 function! GenerateCommitMsg()
   let l:ping_cmd = 'curl -s -o /dev/null -w "%{http_code}" --connect-timeout 0.1 ' . g:llm_host
@@ -97,6 +123,7 @@ function! GenerateCommitMsg()
     let l:response_json = json_decode(l:response_raw)
     if has_key(l:response_json, 'response')
       let l:msg = l:response_json.response
+      let l:msg = s:StripWrapping(l:msg)
       call append(0, split(l:msg, "\n"))
       normal! gg
     endif
@@ -149,6 +176,71 @@ function! Test_LLMCommit()
     call add(l:errors, "[Comments] Expected " . string(l:expected) . " but got " . string(l:actual))
   endif
 
+  if len(l:errors) > 0
+    throw join(l:errors, " | ")
+  endif
+endfunction
+
+" Test the StripWrapping function
+function! Test_StripWrapping()
+  let l:errors = []
+  
+  " Test Case 1: Backticks (single)
+  let l:input = '`fix: update config`'
+  let l:expected = 'fix: update config'
+  let l:actual = s:StripWrapping(l:input)
+  if l:actual != l:expected
+    call add(l:errors, "[Backticks] Expected " . string(l:expected) . " but got " . string(l:actual))
+  endif
+  
+  " Test Case 2: Triple backticks
+  let l:input = '```feat: add new feature```'
+  let l:expected = 'feat: add new feature'
+  let l:actual = s:StripWrapping(l:input)
+  if l:actual != l:expected
+    call add(l:errors, "[Triple Backticks] Expected " . string(l:expected) . " but got " . string(l:actual))
+  endif
+  
+  " Test Case 3: Double quotes
+  let l:input = '"refactor: improve performance"'
+  let l:expected = 'refactor: improve performance'
+  let l:actual = s:StripWrapping(l:input)
+  if l:actual != l:expected
+    call add(l:errors, "[Double Quotes] Expected " . string(l:expected) . " but got " . string(l:actual))
+  endif
+  
+  " Test Case 4: Single quotes
+  let l:input = "'docs: update README'"
+  let l:expected = 'docs: update README'
+  let l:actual = s:StripWrapping(l:input)
+  if l:actual != l:expected
+    call add(l:errors, "[Single Quotes] Expected " . string(l:expected) . " but got " . string(l:actual))
+  endif
+  
+  " Test Case 5: No wrapping
+  let l:input = 'chore: bump version'
+  let l:expected = 'chore: bump version'
+  let l:actual = s:StripWrapping(l:input)
+  if l:actual != l:expected
+    call add(l:errors, "[No Wrapping] Expected " . string(l:expected) . " but got " . string(l:actual))
+  endif
+  
+  " Test Case 6: With leading/trailing whitespace
+  let l:input = '  `fix: remove bug`  '
+  let l:expected = 'fix: remove bug'
+  let l:actual = s:StripWrapping(l:input)
+  if l:actual != l:expected
+    call add(l:errors, "[Whitespace] Expected " . string(l:expected) . " but got " . string(l:actual))
+  endif
+  
+  " Test Case 7: Multiline with backticks
+  let l:input = "`fix: update API\n\nUpdate the API endpoint to handle new cases`"
+  let l:expected = "fix: update API\n\nUpdate the API endpoint to handle new cases"
+  let l:actual = s:StripWrapping(l:input)
+  if l:actual != l:expected
+    call add(l:errors, "[Multiline] Expected " . string(l:expected) . " but got " . string(l:actual))
+  endif
+  
   if len(l:errors) > 0
     throw join(l:errors, " | ")
   endif
