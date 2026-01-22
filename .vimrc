@@ -173,7 +173,7 @@ autocmd InsertLeave * match TrailingWhitespace /\s\+$/
 " Exclude db/structure.sql files (they may have intentional trailing whitespace)
 autocmd BufWritePre * if expand('%:p') !~# 'db/structure\.sql$' | %s/\s\+$//e | endif
 
-" ALE (Linter) Settings
+" vim-lsp Settings
 if executable('standardrb')
   au User lsp_setup call lsp#register_server({
         \ 'name': 'standardrb',
@@ -181,9 +181,22 @@ if executable('standardrb')
         \ 'allowlist': ['ruby'],
         \ })
 endif
-let g:ale_linters = {'ruby': ['standardrb']}
-let g:ale_fixers = {'ruby': ['standardrb']}
-let g:ale_fix_on_save = 0
+
+" Enable format on save for vim-lsp
+function! s:on_lsp_buffer_enabled() abort
+  setlocal omnifunc=lsp#complete
+  if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
+  augroup lsp_format_on_save
+    autocmd! * <buffer>
+    autocmd BufWritePre <buffer> LspDocumentFormatSync
+  augroup END
+endfunction
+
+augroup lsp_install
+  au!
+  autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
+augroup END
+
 let g:ruby_indent_assignment_style = 'variable'
 let g:ruby_indent_hanging_elements = 0
 
