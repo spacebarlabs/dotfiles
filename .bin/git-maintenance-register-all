@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Set the root directory to search (default to current dir if not provided)
+SEARCH_DIR="${1:-.}"
+
+echo "Searching for git repositories in: $SEARCH_DIR"
+echo "Registering 'git maintenance' for each..."
+
+# 1. Find directories named .git
+# 2. -prune prevents descending INTO the .git folder
+# 3. -execdir runs the command in the parent folder of the .git directory
+find "$SEARCH_DIR" -type d -name ".git" -prune -execdir bash -c '
+    echo "  - Registering: $(pwd)"
+    git maintenance start
+' \;
+
+echo "Done! All repositories are now registered for background maintenance."

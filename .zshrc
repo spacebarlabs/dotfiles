@@ -87,7 +87,7 @@ up() {
   cd "$d" || return
 }
 
-PATH=$PATH:$HOME/bin # Make personal scripts available
+PATH=$HOME/.bin:$PATH:$HOME/bin # Make personal scripts available
 
 export CDPATH="$CDPATH:$HOME/git"
 
