@@ -139,17 +139,6 @@ set signcolumn=yes
 nmap ]h <Plug>(GitGutterNextHunk)
 nmap [h <Plug>(GitGutterPrevHunk)
 
-" Rename File
-function! RenameFile()
-    let old_name = expand('%')
-    let new_name = input('New file name: ', expand('%'))
-    if new_name != '' && new_name != old_name
-      exec ':saveas ' . new_name
-      exec ':silent !rm ' . old_name
-      redraw!
-    endif
-endfunction
-map <leader>mv :call RenameFile()<cr>
 
 " Insert newline without entering insert mode
 noremap - o<esc>

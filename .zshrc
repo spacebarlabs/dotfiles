@@ -2,7 +2,7 @@ export EDITOR=vim
 export ZSH=$HOME/.oh-my-zsh
 export ZSH_CUSTOM=$HOME/.oh-my-zsh-custom
 export ZSH_THEME="spacebarlabs"
-plugins=(git rails ruby gem vi-mode bundler)
+plugins=(git rails ruby gem vi-mode bundler $ZSH_CUSTOM/plugins/*(N:t))
 zstyle ':omz:update' mode disabled
 
 source "$ZSH/oh-my-zsh.sh"
