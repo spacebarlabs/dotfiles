@@ -46,13 +46,21 @@ jobs:
           
           # Create mise directory (required by .zshrc)
           mkdir -p $HOME/.local/bin
-          # Create a dummy mise script since actual mise isn't needed for syntax check
-          echo '#!/bin/bash' > $HOME/.local/bin/mise
-          echo 'echo "activate zsh"' >> $HOME/.local/bin/mise
+          # Create a dummy mise script that outputs valid shell code for eval
+          cat > $HOME/.local/bin/mise << 'EOF'
+          #!/bin/bash
+          if [[ "$1" == "activate" ]]; then
+            # Output valid shell initialization code
+            echo "# mise activated for $2"
+          fi
+          EOF
           chmod +x $HOME/.local/bin/mise
           
-          # Test zsh config loads without errors
-          zsh -c "source .zshrc && echo 'Zsh config loaded successfully'"
+          # Disable oh-my-zsh insecure directory warnings in CI environment
+          export ZSH_DISABLE_COMPFIX="true"
+          
+          # Test zsh config loads without errors (redirect stderr to suppress stty warnings)
+          zsh -c "source .zshrc && echo 'Zsh config loaded successfully'" 2>&1 | grep -v "stty: 'standard input': Inappropriate ioctl for device"
 
       - name: Validate Vim configuration
         run: |
