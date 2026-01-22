@@ -20,9 +20,14 @@ jobs:
 
       - name: Install required packages
         run: |
-          # Add sbl-cli-utils repository
-          echo "deb [trusted=yes] https://apt.spacebarlabs.com/ ./" | sudo tee /etc/apt/sources.list.d/spacebarlabs.list
+          # Bootstrap: Install repository configuration package
+          wget -qO /tmp/sbl-apt-repos.deb https://apt.spacebarlabs.com/sbl-apt-repos.deb
+          sudo apt install -y /tmp/sbl-apt-repos.deb
+          rm /tmp/sbl-apt-repos.deb
+          
+          # Update package lists to see newly available packages
           sudo apt-get update
+          
           # Install sbl-cli-utils which includes mise and other utilities
           sudo apt-get install -y sbl-cli-utils bash zsh vim tmux git ruby
 
