@@ -36,6 +36,7 @@
   tool = /usr/bin/vimdiff
 [push]
   default = simple
+	autoSetupRemote = true
 [pull]
   ff = only
 [help]
@@ -45,3 +46,7 @@
 [include]
   # load local changes last so personal settings can override shared settings
   path = ~/.gitconfig.d/user # use this to set username/email
+[rebase]
+	autoStash = true
+[rerere]
+	enabled = true

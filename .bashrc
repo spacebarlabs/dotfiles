@@ -48,6 +48,8 @@ esac
 # * http://nodejs.org/docs/v0.4.7/api/repl.html
 
 # FIXME: Tab completion doesn't work
-alias node="env NODE_NO_READLINE=1 rlwrap node"
+if command -v rlwrap >/dev/null 2>&1; then
+  alias node="env NODE_NO_READLINE=1 rlwrap node"
+fi
 
 bind "set completion-ignore-case on"

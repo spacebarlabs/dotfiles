@@ -6,3 +6,5 @@
 .tmux/plugins
 
 # Add other plugin folders here as needed
+
+.oh-my-zsh-custom/plugins
