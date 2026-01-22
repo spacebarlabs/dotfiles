@@ -17,6 +17,7 @@ Assuming you're using Debian/Ubuntu:
 ```bash
 sudo apt install yadm
 yadm clone --recurse-submodules https://github.com/spacebarlabs/dotfiles
+yadm bootstrap
 ```
 
 ## Updating
