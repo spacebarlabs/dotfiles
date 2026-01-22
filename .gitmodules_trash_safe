@@ -1,10 +1,9 @@
 # These paths contain git submodules that are safe to trash.  This allows
 # submodule deletion to be handled more easily.
 #
-# Reinstating them in `git refresh` is fast because they're still on disk.
-.vim/pack/plugins/start
-.tmux/plugins
-
 # Add other plugin folders here as needed
-
+#
+# Reinstating them in `git refresh` is fast because they're still on disk.
 .oh-my-zsh-custom/plugins
+.tmux/plugins
+.vim/pack/plugins/start
