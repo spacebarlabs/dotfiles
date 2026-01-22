@@ -52,6 +52,9 @@ jobs:
           if [[ "$1" == "activate" ]]; then
             # Output valid shell initialization code
             echo "# mise activated for $2"
+          else
+            # Handle other commands gracefully
+            exit 0
           fi
           EOF
           chmod +x $HOME/.local/bin/mise
@@ -59,8 +62,9 @@ jobs:
           # Disable oh-my-zsh insecure directory warnings in CI environment
           export ZSH_DISABLE_COMPFIX="true"
           
-          # Test zsh config loads without errors (redirect stderr to suppress stty warnings)
-          zsh -c "source .zshrc && echo 'Zsh config loaded successfully'" 2>&1 | grep -v "stty: 'standard input': Inappropriate ioctl for device"
+          # Test zsh config loads without errors
+          # Suppress stty error which is expected in non-interactive mode
+          zsh -c "source .zshrc 2>&1 | grep -v \"stty: 'standard input': Inappropriate ioctl for device\" && echo 'Zsh config loaded successfully'"
 
       - name: Validate Vim configuration
         run: |
