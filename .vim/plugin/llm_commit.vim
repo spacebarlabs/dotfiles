@@ -66,12 +66,14 @@ function! s:StripWrapping(text)
   
   " Remove wrapping backticks (single or triple)
   " Match ```...``` or `...`
-  let l:cleaned = substitute(l:cleaned, '^```\(.\{-}\)```$', '\1', '')
-  let l:cleaned = substitute(l:cleaned, '^`\(.\{-}\)`$', '\1', '')
+  " Use \_. to match any character including newlines
+  let l:cleaned = substitute(l:cleaned, '^```\(\_.*\)```$', '\1', '')
+  let l:cleaned = substitute(l:cleaned, '^`\(\_.*\)`$', '\1', '')
   
   " Remove wrapping quotes (single or double)
-  let l:cleaned = substitute(l:cleaned, '^"\(.\{-}\)"$', '\1', '')
-  let l:cleaned = substitute(l:cleaned, "^'\\(.\\{-\\}\\)'$", '\1', '')
+  " Use \_. to match any character including newlines
+  let l:cleaned = substitute(l:cleaned, '^"\(\_.*\)"$', '\1', '')
+  let l:cleaned = substitute(l:cleaned, "^'\\(\\_.*\\)'$", '\1', '')
   
   " Remove leading/trailing whitespace again after removing wrappers
   let l:cleaned = substitute(l:cleaned, '^\s\+', '', '')
