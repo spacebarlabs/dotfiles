@@ -99,4 +99,4 @@ if [ ! -f "$HOME/.tmux/user.conf" ]; then
   touch "$HOME/.tmux/user.conf"
 fi
 
-eval "$(~/.local/bin/mise activate zsh)"
+eval "$(mise activate zsh)"
