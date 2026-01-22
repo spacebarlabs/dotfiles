@@ -31,6 +31,8 @@ jobs:
           # Submodules are already checked out in GITHUB_WORKSPACE by actions/checkout
           # Copy them to the home directory where yadm placed the dotfiles
           # (yadm can't handle submodules when cloning from local directories)
+          # Remove the empty directories created by yadm first, then copy the populated ones
+          rm -rf $HOME/.oh-my-zsh $HOME/.oh-my-zsh-custom $HOME/.vim $HOME/.tmux
           cp -r ${GITHUB_WORKSPACE}/.oh-my-zsh $HOME/
           cp -r ${GITHUB_WORKSPACE}/.oh-my-zsh-custom $HOME/
           cp -r ${GITHUB_WORKSPACE}/.vim $HOME/
