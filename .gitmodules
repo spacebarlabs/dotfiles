@@ -115,5 +115,5 @@
 	shallow = true
 [submodule ".sbl-submodules/dracula-gnome-terminal"]
 	path = .sbl-submodules/dracula-gnome-terminal
-	url = https://github.com/dracula/gnome-terminal
+	url = https://github.com/dracula/gnome-terminal.git
 	shallow = true
