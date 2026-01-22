@@ -56,3 +56,10 @@ bind "set completion-ignore-case on"
 
 # Add .bin directory to PATH for custom executables
 export PATH="$HOME/.bin:$PATH"
+
+# An alternative to chsh
+#
+# Switch to zsh if it is installed and we are in an interactive shell
+if [ -t 1 ] && command -v zsh >/dev/null; then
+  exec zsh
+fi
