@@ -28,8 +28,12 @@ jobs:
           # Initialize yadm with the checked-out repository
           yadm clone --no-bootstrap file://${GITHUB_WORKSPACE}
           
-          # Update submodules through yadm
-          yadm submodule update --init --recursive
+          # Submodules are already checked out in GITHUB_WORKSPACE by actions/checkout
+          # Link them to the home directory where yadm placed the dotfiles
+          cp -r ${GITHUB_WORKSPACE}/.oh-my-zsh $HOME/
+          cp -r ${GITHUB_WORKSPACE}/.oh-my-zsh-custom $HOME/
+          cp -r ${GITHUB_WORKSPACE}/.vim $HOME/
+          cp -r ${GITHUB_WORKSPACE}/.tmux $HOME/
 
       - name: Validate Bash configuration
         run: |
