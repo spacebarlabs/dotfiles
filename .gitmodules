@@ -97,3 +97,19 @@
 [submodule ".oh-my-zsh-custom/plugins/zsh-syntax-highlighting"]
 	path = .oh-my-zsh-custom/plugins/zsh-syntax-highlighting
 	url = https://github.com/zsh-users/zsh-syntax-highlighting
+[submodule ".tmux/plugins/tmux-resurrect"]
+	path = .tmux/plugins/tmux-resurrect
+	url = https://github.com/tmux-plugins/tmux-resurrect
+	shallow = true
+[submodule ".tmux/plugins/tmux-sensible"]
+	path = .tmux/plugins/tmux-sensible
+	url = https://github.com/tmux-plugins/tmux-sensible
+	shallow = true
+[submodule ".tmux/plugins/tmux-better-mouse-mode"]
+	path = .tmux/plugins/tmux-better-mouse-mode
+	url = https://github.com/NHDaly/tmux-better-mouse-mode
+	shallow = true
+[submodule ".tmux/plugins/tmux-open"]
+	path = .tmux/plugins/tmux-open
+	url = https://github.com/tmux-plugins/tmux-open
+	shallow = true

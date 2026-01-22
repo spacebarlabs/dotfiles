@@ -2,6 +2,10 @@
 .bundle
 *.sw[nop]
 
+# Shell history files
+.bash_history
+.zsh_history
+
 # Vim
 .vim/.netrwhist
 .vim/spell
