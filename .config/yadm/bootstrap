@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Runs automatically one time when first cloning.
+#
+# Run manually with `yadm bootstrap` as needed.
+
+# Install Dracula for GNOME Terminal
+# Idempotent: Overwrites the keys of the default profile
+DRACULA_SCRIPT="$HOME/.sbl-submodules/dracula-gnome-terminal/install.sh"
+
+if [ -x "$DRACULA_SCRIPT" ] && command -v gsettings >/dev/null; then
+    echo "Applying Dracula settings to GNOME Terminal..."
+
+    # Get the UUID of the default profile
+    PROFILE_UUID=$(gsettings get org.gnome.Terminal.ProfilesList default | tr -d "'")
+
+    # Run non-interactively and SKIP the shell config modification
+    "$DRACULA_SCRIPT" \
+        --scheme Dracula \
+        --profile "$PROFILE_UUID" \
+        --skip-dircolors
+fi

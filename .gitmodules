@@ -113,3 +113,7 @@
 	path = .tmux/plugins/tmux-open
 	url = https://github.com/tmux-plugins/tmux-open
 	shallow = true
+[submodule ".sbl-submodules/dracula-gnome-terminal"]
+	path = .sbl-submodules/dracula-gnome-terminal
+	url = https://github.com/dracula/gnome-terminal
+	shallow = true
