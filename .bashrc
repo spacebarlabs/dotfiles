@@ -53,3 +53,6 @@ if command -v rlwrap >/dev/null 2>&1; then
 fi
 
 bind "set completion-ignore-case on"
+
+# Add .bin directory to PATH for custom executables
+export PATH="$HOME/.bin:$PATH"
