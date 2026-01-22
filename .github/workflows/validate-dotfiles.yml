@@ -1,0 +1,126 @@
+name: Validate Dotfiles
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install required packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bash zsh vim tmux git ruby
+
+      - name: Validate Bash configuration
+        run: |
+          echo "Testing .bashrc..."
+          bash -c "source .bashrc && echo 'Bash config loaded successfully'"
+
+      - name: Validate Zsh configuration
+        run: |
+          echo "Testing .zshrc..."
+          # oh-my-zsh is now a git submodule and was checked out with the repository
+          
+          # Create custom theme directory and copy theme
+          mkdir -p $HOME/.oh-my-zsh-custom
+          cp -r .oh-my-zsh-custom/* $HOME/.oh-my-zsh-custom/ || true
+          
+          # Copy .oh-my-zsh submodule to home directory for zsh to find it
+          cp -r .oh-my-zsh $HOME/
+          
+          # Create required tmux user.conf file (referenced in .zshrc)
+          mkdir -p $HOME/.tmux
+          touch $HOME/.tmux/user.conf
+          
+          # Create mise directory (required by .zshrc)
+          mkdir -p $HOME/.local/bin
+          # Create a dummy mise script that outputs valid shell code for eval
+          cat > $HOME/.local/bin/mise << 'EOF'
+          #!/bin/bash
+          if [[ "$1" == "activate" ]]; then
+            # Output valid shell initialization code
+            echo "# mise activated for $2"
+          else
+            # Handle other commands gracefully
+            exit 0
+          fi
+          EOF
+          chmod +x $HOME/.local/bin/mise
+          
+          # Disable oh-my-zsh insecure directory warnings in CI environment
+          export ZSH_DISABLE_COMPFIX="true"
+          
+          # Test zsh config loads without errors
+          # Filter stty warning but check zsh exit code using PIPESTATUS
+          OUTPUT=$(zsh -c "source .zshrc" 2>&1)
+          ZSH_EXIT=$?
+          echo "$OUTPUT" | grep -v "stty: 'standard input': Inappropriate ioctl for device" || true
+          if [ $ZSH_EXIT -eq 0 ]; then
+            echo 'Zsh config loaded successfully'
+          else
+            echo 'Zsh config failed to load'
+            exit 1
+          fi
+
+      - name: Validate Vim configuration
+        run: |
+          echo "Testing .vimrc..."
+          # Vim plugins are managed as git submodules and were checked out with the repository
+          # Vim will automatically load them from .vim/pack/plugins/start/
+          
+          # Create backup directory (required by .vimrc)
+          mkdir -p ~/.vim/backup
+          
+          # Test vim config by opening and closing vim with plugins loaded
+          vim -u .vimrc -c "quit"
+          echo "Vim config loaded successfully"
+
+      - name: Validate Tmux configuration
+        run: |
+          echo "Testing .tmux.conf..."
+          # Test tmux config syntax
+          PID=$(tmux -f .tmux.conf -L test_session new-session -d -P -F '#{pid}')
+          sleep 1
+          tmux -L test_session list-sessions
+          kill $PID 2>/dev/null || true
+          echo "Tmux config loaded successfully"
+
+      - name: Validate Git configuration
+        run: |
+          echo "Testing .gitconfig..."
+          # Create referenced config directories
+          mkdir -p ~/.gitconfig.d
+          touch ~/.gitconfig.d/shared
+          touch ~/.gitconfig.d/user
+          touch ~/.gitconfig.d/local
+          touch ~/.gitconfig.d/gitflow
+          
+          # Test git config by reading it
+          git config -f .gitconfig --list
+          echo "Git config loaded successfully"
+
+      - name: Validate Ruby gem configuration
+        run: |
+          echo "Testing .gemrc..."
+          # Test gemrc syntax by loading it safely
+          ruby -e "require 'yaml'; YAML.safe_load_file('.gemrc', permitted_classes: [Symbol])"
+          echo "Gem config loaded successfully"
+
+      - name: Validate IRB configuration
+        run: |
+          echo "Testing .irbrc..."
+          # Test irbrc syntax
+          ruby -c .irbrc
+          echo "IRB config loaded successfully"
