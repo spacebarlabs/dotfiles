@@ -25,6 +25,7 @@ yadm bootstrap
 ```bash
 yadm pull
 yadm refresh # see .gitconfig for details
+yadm bootstrap
 ```
 
 ## Automated Maintenance
