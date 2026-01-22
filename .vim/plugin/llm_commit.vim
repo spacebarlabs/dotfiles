@@ -14,19 +14,20 @@ if !exists('g:llm_host')
 endif
 
 if !exists('g:llm_model')
-  let g:llm_model = 'qwen2.5-coder:1.5b'
+  " let g:llm_model = 'qwen2.5-coder:1.5b'
+  let g:llm_model = 'phi3'
 endif
 
 " --- Core Logic: Noise Filter ---
 function! s:FilterLines(lines)
   let l:clean_lines = []
-  
+
   for line in a:lines
     " A. Remove Git Status Comments
     if line =~ '^#'
       continue
     endif
-    
+
     " B. Remove Empty Lines
     if line =~ '^[+\- ]\?\s*$'
       continue
@@ -39,7 +40,7 @@ function! s:FilterLines(lines)
       continue
     endif
 
-    " 2. Code Symbols: }, ], ), }; 
+    " 2. Code Symbols: }, ], ), };
     " FIX: ] is first in the set to avoid regex parsing errors
     if line =~ '^[+\- ]\?\s*[\]})]\+;\?\s*$'
       continue
@@ -52,7 +53,7 @@ function! s:FilterLines(lines)
 
     call add(l:clean_lines, line)
   endfor
-  
+
   return l:clean_lines
 endfunction
 
@@ -86,7 +87,7 @@ endfunction
 function! GenerateCommitMsg()
   let l:ping_cmd = 'curl -s -o /dev/null -w "%{http_code}" --connect-timeout 0.1 ' . g:llm_host
   let l:ping = system(l:ping_cmd)
-  
+
   if l:ping != "200"
     echo "Ollama is offline. Skipping AI generation."
     return
@@ -101,20 +102,20 @@ function! GenerateCommitMsg()
   if len(l:diff_content) < 10
     return
   endif
-  
+
   let l:system_prompt = "Generate a single, concise git commit message (Conventional Commits) for this diff. No explanations, no quotes. First line is the subject, optional body after a blank line."
-  
+
   let l:payload = {
   \ 'model': g:llm_model,
   \ 'prompt': l:system_prompt . "\n\n" . l:diff_content,
   \ 'stream': v:false,
-  \ 'options': {'temperature': 0.2} 
+  \ 'options': {'temperature': 0.2}
   \ }
-  
+
   let l:json_body = json_encode(l:payload)
   let l:tmp_file = tempname()
   call writefile([l:json_body], l:tmp_file)
-  
+
   let l:curl_cmd = 'curl -s -X POST ' . g:llm_host . '/api/generate -d @' . l:tmp_file
   let l:response_raw = system(l:curl_cmd)
   call delete(l:tmp_file)
@@ -143,12 +144,12 @@ command! GitCommit call GenerateCommitMsg()
 " ==============================================================================
 function! Test_LLMCommit()
   let l:errors = []
-  
+
   " Test Case 1: Ruby Noise
   let l:input = ['def hello', '  puts "hi"', 'end', '+ end']
   let l:expected = ['def hello', '  puts "hi"']
   let l:actual = s:FilterLines(l:input)
-  if l:actual != l:expected 
+  if l:actual != l:expected
     call add(l:errors, "[Ruby] Expected " . string(l:expected) . " but got " . string(l:actual))
   endif
 
@@ -156,7 +157,7 @@ function! Test_LLMCommit()
   let l:input = ['function x() {', '  return 1;', '}', '};']
   let l:expected = ['function x() {', '  return 1;']
   let l:actual = s:FilterLines(l:input)
-  if l:actual != l:expected 
+  if l:actual != l:expected
     call add(l:errors, "[JS] Expected " . string(l:expected) . " but got " . string(l:actual))
   endif
 
@@ -164,7 +165,7 @@ function! Test_LLMCommit()
   let l:input = ['<div>', '  Hello', '</div>', '   </p>']
   let l:expected = ['<div>', '  Hello']
   let l:actual = s:FilterLines(l:input)
-  if l:actual != l:expected 
+  if l:actual != l:expected
     call add(l:errors, "[HTML] Expected " . string(l:expected) . " but got " . string(l:actual))
   endif
 
@@ -172,7 +173,7 @@ function! Test_LLMCommit()
   let l:input = ['# This is a comment', '', '  ', '+ valid code']
   let l:expected = ['+ valid code']
   let l:actual = s:FilterLines(l:input)
-  if l:actual != l:expected 
+  if l:actual != l:expected
     call add(l:errors, "[Comments] Expected " . string(l:expected) . " but got " . string(l:actual))
   endif
 
