@@ -240,7 +240,7 @@ if has("autocmd")
     \ 'erb=eruby',
     \ 'javascript',
     \ 'js=javascript',
-    \ 'json=javascript',
+    \ 'json',
     \ 'css',
     \ 'sass',
     \ 'scss=sass',
@@ -248,8 +248,18 @@ if has("autocmd")
     \ 'bash=sh',
     \ 'sh',
     \ 'sql',
-    \ 'xml'
+    \ 'xml',
+    \ 'python',
+    \ 'ts=typescript',
+    \ 'typescript',
+    \ 'yaml',
+    \ 'go',
+    \ 'vim',
+    \ 'diff'
   \ ]
+  
+  " Prevent Vim from hiding formatting characters (like * or _)
+  let g:markdown_syntax_conceal = 0
 
   " Git commits
   au FileType gitcommit setlocal spell
