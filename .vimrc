@@ -101,7 +101,12 @@ function! SmartSave()
     let l:tmp = tempname()
     execute 'saveas ' . fnameescape(l:tmp)
     redraw!
+    
+    " Switch to Warning highlight group
+    echohl WarningMsg
     echo "Saved to temp file: " . l:tmp
+    " Reset highlighting
+    echohl None
   else
     update
   endif
