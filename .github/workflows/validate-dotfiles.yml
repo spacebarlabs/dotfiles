@@ -21,24 +21,25 @@ jobs:
       - name: Install required packages
         run: |
           sudo apt-get update
-          sudo apt-get install -y bash zsh vim tmux git ruby
+          sudo apt-get install -y bash zsh vim tmux git ruby yadm
+
+      - name: Setup dotfiles with yadm
+        run: |
+          # Initialize yadm with the checked-out repository
+          yadm clone --no-bootstrap file://${GITHUB_WORKSPACE}
+          
+          # Update submodules through yadm
+          yadm submodule update --init --recursive
 
       - name: Validate Bash configuration
         run: |
           echo "Testing .bashrc..."
-          bash -c "source .bashrc && echo 'Bash config loaded successfully'"
+          bash -c "source ~/.bashrc && echo 'Bash config loaded successfully'"
 
       - name: Validate Zsh configuration
         run: |
           echo "Testing .zshrc..."
-          # oh-my-zsh is now a git submodule and was checked out with the repository
-          
-          # Create custom theme directory and copy theme
-          mkdir -p $HOME/.oh-my-zsh-custom
-          cp -r .oh-my-zsh-custom/* $HOME/.oh-my-zsh-custom/ || true
-          
-          # Copy .oh-my-zsh submodule to home directory for zsh to find it
-          cp -r .oh-my-zsh $HOME/
+          # oh-my-zsh and custom themes are already set up by yadm
           
           # Create required tmux user.conf file (referenced in .zshrc)
           mkdir -p $HOME/.tmux
@@ -64,7 +65,7 @@ jobs:
           
           # Test zsh config loads without errors
           # Filter stty warning but check zsh exit code using PIPESTATUS
-          OUTPUT=$(zsh -c "source .zshrc" 2>&1)
+          OUTPUT=$(zsh -c "source ~/.zshrc" 2>&1)
           ZSH_EXIT=$?
           echo "$OUTPUT" | grep -v "stty: 'standard input': Inappropriate ioctl for device" || true
           if [ $ZSH_EXIT -eq 0 ]; then
@@ -77,21 +78,21 @@ jobs:
       - name: Validate Vim configuration
         run: |
           echo "Testing .vimrc..."
-          # Vim plugins are managed as git submodules and were checked out with the repository
+          # Vim plugins are managed as git submodules and were set up by yadm
           # Vim will automatically load them from .vim/pack/plugins/start/
           
           # Create backup directory (required by .vimrc)
           mkdir -p ~/.vim/backup
           
           # Test vim config by opening and closing vim with plugins loaded
-          vim -u .vimrc -c "quit"
+          vim -u ~/.vimrc -c "quit"
           echo "Vim config loaded successfully"
 
       - name: Validate Tmux configuration
         run: |
           echo "Testing .tmux.conf..."
           # Test tmux config syntax
-          PID=$(tmux -f .tmux.conf -L test_session new-session -d -P -F '#{pid}')
+          PID=$(tmux -f ~/.tmux.conf -L test_session new-session -d -P -F '#{pid}')
           sleep 1
           tmux -L test_session list-sessions
           kill $PID 2>/dev/null || true
@@ -108,19 +109,19 @@ jobs:
           touch ~/.gitconfig.d/gitflow
           
           # Test git config by reading it
-          git config -f .gitconfig --list
+          git config -f ~/.gitconfig --list
           echo "Git config loaded successfully"
 
       - name: Validate Ruby gem configuration
         run: |
           echo "Testing .gemrc..."
           # Test gemrc syntax by loading it safely
-          ruby -e "require 'yaml'; YAML.safe_load_file('.gemrc', permitted_classes: [Symbol])"
+          ruby -e "require 'yaml'; YAML.safe_load_file(File.expand_path('~/.gemrc'), permitted_classes: [Symbol])"
           echo "Gem config loaded successfully"
 
       - name: Validate IRB configuration
         run: |
           echo "Testing .irbrc..."
           # Test irbrc syntax
-          ruby -c .irbrc
+          ruby -c ~/.irbrc
           echo "IRB config loaded successfully"
