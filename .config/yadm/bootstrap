@@ -9,10 +9,21 @@
 DRACULA_SCRIPT="$HOME/.sbl-submodules/dracula-gnome-terminal/install.sh"
 
 if [ -x "$DRACULA_SCRIPT" ] && command -v gsettings >/dev/null; then
+    # Check if GNOME Terminal schema is available
+    if ! gsettings list-schemas | grep -q "org.gnome.Terminal"; then
+        echo "GNOME Terminal not installed or configured, skipping Dracula theme installation"
+        exit 0
+    fi
+
     echo "Applying Dracula settings to GNOME Terminal..."
 
     # Get the UUID of the default profile
-    PROFILE_UUID=$(gsettings get org.gnome.Terminal.ProfilesList default | tr -d "'")
+    PROFILE_UUID=$(gsettings get org.gnome.Terminal.ProfilesList default 2>/dev/null | tr -d "'")
+
+    if [ -z "$PROFILE_UUID" ]; then
+        echo "Could not determine GNOME Terminal default profile, skipping Dracula theme installation"
+        exit 0
+    fi
 
     # Run non-interactively and SKIP the shell config modification
     "$DRACULA_SCRIPT" \
