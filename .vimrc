@@ -99,7 +99,7 @@ map <leader>= gg=G''
 function! SmartSave()
   if expand('%') == ''
     let l:tmp = tempname()
-    execute 'saveas ' . l:tmp
+    execute 'saveas ' . fnameescape(l:tmp)
     redraw!
     echo "Saved to temp file: " . l:tmp
   else
