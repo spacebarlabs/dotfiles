@@ -10,7 +10,9 @@ echo "Registering 'git maintenance' for each..."
 # 2. -prune prevents descending INTO the .git folder
 # 3. -execdir runs the command in the parent folder of the .git directory
 find "$SEARCH_DIR" -type d -name ".git" -prune -execdir bash -c '
-    echo "  - Registering: $(pwd)"
+    REPO_PATH="$(pwd)"
+    echo "  - Registering: $REPO_PATH"
+    git config --file ~/.gitconfig.local --add maintenance.repo "$REPO_PATH"
     git maintenance start
 ' \;
 
