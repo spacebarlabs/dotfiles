@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Install required packages
         run: |
@@ -29,14 +31,14 @@ jobs:
       - name: Validate Zsh configuration
         run: |
           echo "Testing .zshrc..."
-          # Install oh-my-zsh (required for .zshrc)
-          # Note: This uses the official oh-my-zsh installation script
-          # For enhanced security in production, consider pinning to a specific commit
-          sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+          # oh-my-zsh is now a git submodule and was checked out with the repository
           
           # Create custom theme directory and copy theme
           mkdir -p $HOME/.oh-my-zsh-custom
           cp -r .oh-my-zsh-custom/* $HOME/.oh-my-zsh-custom/ || true
+          
+          # Copy .oh-my-zsh submodule to home directory for zsh to find it
+          cp -r .oh-my-zsh $HOME/
           
           # Create required tmux user.conf file (referenced in .zshrc)
           mkdir -p $HOME/.tmux
@@ -55,15 +57,11 @@ jobs:
       - name: Validate Vim configuration
         run: |
           echo "Testing .vimrc..."
-          # Install vim-plug
-          curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-            https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+          # Vim plugins are managed as git submodules and were checked out with the repository
+          # Vim will automatically load them from .vim/pack/plugins/start/
           
           # Create backup directory (required by .vimrc)
           mkdir -p ~/.vim/backup
-          
-          # Install vim plugins (this will install dracula theme and other required plugins)
-          vim -u .vimrc +PlugInstall +qall
           
           # Test vim config by opening and closing vim with plugins loaded
           vim -u .vimrc -c "quit"
