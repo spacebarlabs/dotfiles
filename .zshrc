@@ -43,6 +43,13 @@ zstyle ':completion:*' group-order 'directories' 'files'
 # Automatically find new executables (rehash) immediately after installation
 zstyle ':completion:*' rehash true
 
+# --- Custom Keybindings ---
+# Bind Ctrl+e to accept autosuggestions
+bindkey '^e' autosuggest-accept
+
+# Ensure this works in vi-mode 'Insert' mode
+bindkey -M viins '^e' autosuggest-accept
+
 # --- Aliases ---
 
 # 'nocorrect' to stop zsh from second-guessing git commands
