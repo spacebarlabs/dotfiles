@@ -1,36 +1,35 @@
 set nocompatible
 
-" Use Absolute Path for reliability in CI
+" 1. Setup Path
 let s:repo_root = getcwd()
 let &rtp = s:repo_root . '/.vim,' . &rtp
 
-" Force output to stdout for CI visibility
+" Helper: Log to stdout for CI
 function! Log(msg)
   call writefile([a:msg], "/dev/stdout", "a")
 endfunction
 
 call Log("🔍  Repo Root: " . s:repo_root)
-call Log("🔍  RuntimePath: " . &rtp)
 
-" Explicitly glob to see if Vim can actually find the files
-let s:plugin_files = globpath(&rtp, 'plugin/**/*.vim', 0, 1)
-call Log("📂  Found plugin files: " . string(s:plugin_files))
-
-" Source them
+" 2. Source Plugins
 runtime! plugin/**/*.vim
 
-" Find tests
+" 3. Find Tests
 let s:test_functions = getcompletion('Test_', 'function')
 let s:total_failures = 0
 
 if len(s:test_functions) == 0
-  call Log("⚠️  No tests found! Check file paths above.")
+  call Log("⚠️  No tests found! (Check if plugin/llm_commit.vim is loading)")
   cquit
 endif
 
-" Run tests
-for func in s:test_functions
+" 4. Run Tests
+for raw_func in s:test_functions
+  " FIX: Strip trailing '()' if present (e.g. 'MyFunc()' -> 'MyFunc')
+  let func = substitute(raw_func, '()$', '', '')
+
   call Log("🏃 Running suite: " . func . "...")
+  
   try
     call call(func, [])
   catch
@@ -39,6 +38,7 @@ for func in s:test_functions
   endtry
 endfor
 
+" 5. Summary
 if s:total_failures > 0
   call Log("💀 FAILED: " . s:total_failures . " test suites crashed.")
   cquit
