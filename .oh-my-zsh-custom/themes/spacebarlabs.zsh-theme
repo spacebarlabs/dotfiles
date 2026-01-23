@@ -29,6 +29,8 @@ yadm_prompt_info() {
   fi
 
   # Check if yadm repo exists
+  # We use git directly with yadm's repo path instead of the yadm command
+  # to avoid dependency on yadm being installed (repo may exist without yadm)
   local yadm_repo="$HOME/.local/share/yadm/repo.git"
   if [[ ! -d "$yadm_repo" ]]; then
     return
@@ -40,7 +42,7 @@ yadm_prompt_info() {
   
   # Only print if branch was found
   if [[ -n "$branch" ]]; then
-    echo "%{$fg[cyan]%}‹yadm:$branch›%{$reset_color%}"
+    echo "%{$fg[cyan]%}‹yadm:$branch›"
   fi
 }
 
