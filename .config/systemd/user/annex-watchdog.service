@@ -1,0 +1,10 @@
+[Unit]
+Description=Git Annex Assistant Watchdog
+Documentation=https://github.com/spacebarlabs/dotfiles
+
+[Service]
+Type=oneshot
+ExecStart=%h/.bin/annex-watchdog
+
+[Install]
+WantedBy=default.target

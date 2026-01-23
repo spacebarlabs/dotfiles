@@ -12,6 +12,9 @@ from gi.repository import Gtk, AyatanaAppIndicator3 as AppIndicator, GLib
 
 # CONFIGURATION
 AUTOSTART_FILE = os.path.expanduser("~/.config/git-annex/autostart")
+xdg_runtime = os.environ.get('XDG_RUNTIME_DIR', os.path.expanduser('~/.cache'))
+WATCHDOG_CHECK_FILE = os.path.join(xdg_runtime, 'annex-watchdog-lastcheck')
+WATCHDOG_FAILURE_FILE = os.path.join(xdg_runtime, 'annex-watchdog-failure')
 RECENT_LIMIT = 10
 
 class AnnexTray:
@@ -37,6 +40,7 @@ class AnnexTray:
         self.header_item = Gtk.MenuItem(label="Git Annex Status")
         self.header_item.set_sensitive(False)
         self.menu.append(self.header_item)
+        
         self.menu.append(Gtk.SeparatorMenuItem())
         
         # -- Dynamic Repo Items Start -- 
@@ -53,6 +57,11 @@ class AnnexTray:
         self.web_item = Gtk.MenuItem(label="🟢 Open Webapp")
         self.web_item.connect('activate', self.open_webapp)
         self.menu.append(self.web_item)
+
+        # Watchdog status (above Quit)
+        self.watchdog_item = Gtk.MenuItem(label="🐕 Watchdog: Unknown")
+        self.watchdog_item.set_sensitive(False)
+        self.menu.append(self.watchdog_item)
         
         self.quit_item = Gtk.MenuItem(label="Quit")
         self.quit_item.connect('activate', self.quit)
@@ -63,6 +72,31 @@ class AnnexTray:
         # Start Loop (5s)
         GLib.timeout_add_seconds(5, self.update_loop)
         self.update_loop()
+
+    def get_watchdog_status(self):
+        """Get the last time watchdog checked."""
+        if not os.path.exists(WATCHDOG_CHECK_FILE):
+            return "Never checked"
+        
+        try:
+            with open(WATCHDOG_CHECK_FILE, 'r') as f:
+                last_check = int(f.read().strip())
+            diff = time.time() - last_check
+            
+            if diff < 60:
+                return f"Checked {int(diff)}s ago"
+            elif diff < 3600:
+                return f"Checked {int(diff/60)}m ago"
+            elif diff < 86400:
+                return f"Checked {int(diff/3600)}h ago"
+            else:
+                return f"Checked {int(diff/86400)}d ago"
+        except (ValueError, IOError):
+            return "Check status unknown"
+
+    def is_watchdog_failing(self):
+        """Check if watchdog has detected a failure."""
+        return os.path.exists(WATCHDOG_FAILURE_FILE)
 
     def get_repo_status(self):
         if not os.path.exists(AUTOSTART_FILE): return []
@@ -125,15 +159,21 @@ class AnnexTray:
 
     def update_loop(self):
         repos = self.get_repo_status()
+        watchdog_status = self.get_watchdog_status()
+        watchdog_failing = self.is_watchdog_failing()
+        
+        # Update watchdog status
+        self.watchdog_item.set_label(f"🐕 Watchdog: {watchdog_status}")
         
         # 1. Update Icon
-        any_syncing = any(r['status'] == 'syncing' for r in repos)
-        any_recent = any(r['status'] == 'recent' for r in repos)
-        
-        if any_syncing:
+        # Priority: watchdog failure > syncing > recent activity > idle
+        if watchdog_failing:
+            # "dialog-warning-symbolic" is the standard warning icon in GNOME
+            self.indicator.set_icon_full("dialog-warning-symbolic", "Watchdog Failure")
+        elif any(r['status'] == 'syncing' for r in repos):
             # "view-refresh-symbolic" is the standard 'looping arrows' icon in Ubuntu
             self.indicator.set_icon_full("view-refresh-symbolic", "Syncing")
-        elif any_recent:
+        elif any(r['status'] == 'recent' for r in repos):
             # "document-open-recent-symbolic" is usually a clock or page with a clock
             self.indicator.set_icon_full("document-open-recent-symbolic", "Recent Activity")
         else:

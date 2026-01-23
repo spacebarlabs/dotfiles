@@ -1,0 +1,12 @@
+[Unit]
+Description=Git Annex Assistant Watchdog Timer
+Documentation=https://github.com/spacebarlabs/dotfiles
+
+[Timer]
+# Check every 5 minutes to ensure git-annex assistant stays running
+# Start 1 minute after boot to avoid startup conflicts
+OnBootSec=1min
+OnUnitActiveSec=5min
+
+[Install]
+WantedBy=timers.target
