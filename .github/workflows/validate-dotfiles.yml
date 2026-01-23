@@ -1,4 +1,5 @@
 name: Validate Dotfiles
+# Validates dotfiles configuration across different environments
 
 on:
   push:
