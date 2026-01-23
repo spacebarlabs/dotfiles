@@ -1,10 +1,13 @@
 #!/bin/bash
 
 # Configuration
-STATE_FILE="/tmp/annex-watchdog-timestamp"
+STATE_FILE="${XDG_RUNTIME_DIR:-$HOME/.cache}/annex-watchdog-timestamp"
 LOG_FILE="$HOME/annex-watchdog.log"
 # If a crash happens within this many seconds of the last one, it's a loop.
 THRESHOLD_SECONDS=600 # 10 minutes
+
+# Set DBUS address for notifications
+export DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$(id -u)/bus}"
 
 # Check if git-annex assistant is running
 if pgrep -f "git-annex assistant" > /dev/null; then
@@ -18,30 +21,42 @@ CURRENT_TIME=$(date +%s)
 # Check if we have a record of a previous restart
 if [ -f "$STATE_FILE" ]; then
     LAST_RESTART=$(cat "$STATE_FILE")
-    DIFF=$((CURRENT_TIME - LAST_RESTART))
+    # Validate that the state file contains a valid timestamp
+    if ! [[ "$LAST_RESTART" =~ ^[0-9]+$ ]]; then
+        echo "$(date): Invalid state file content. Resetting." >> "$LOG_FILE"
+        rm -f "$STATE_FILE"
+    else
+        DIFF=$((CURRENT_TIME - LAST_RESTART))
 
-    if [ "$DIFF" -lt "$THRESHOLD_SECONDS" ]; then
-        # CRASH LOOP DETECTED
-        # Send a visual notification to the desktop (works in Gnome)
-        export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u)/bus"
-        notify-send -u critical "Git Annex Failure" "The assistant is crashing repeatedly. Watchdog has stopped restarting it."
-        
-        echo "$(date): Crash loop detected (last restart was ${DIFF}s ago). Aborting." >> "$LOG_FILE"
-        exit 1
+        if [ "$DIFF" -lt "$THRESHOLD_SECONDS" ]; then
+            # CRASH LOOP DETECTED
+            # Send a visual notification to the desktop (works in Gnome)
+            notify-send -u critical "Git Annex Failure" "The assistant is crashing repeatedly. Watchdog has stopped restarting it."
+            
+            echo "$(date): Crash loop detected (last restart was ${DIFF}s ago). Aborting." >> "$LOG_FILE"
+            exit 1
+        fi
     fi
 fi
 
 # --- Restart Sequence ---
 
+# Ensure the directory for the state file exists
+mkdir -p "$(dirname "$STATE_FILE")"
+
 # Update the timestamp
 echo "$CURRENT_TIME" > "$STATE_FILE"
 
 # Restart
-/usr/bin/git-annex assistant --autostart
+if git-annex assistant --autostart; then
+    # Log
+    echo "$(date): Git Annex crashed and was restarted." >> "$LOG_FILE"
 
-# Log
-echo "$(date): Git Annex crashed and was restarted." >> "$LOG_FILE"
-
-# Notify (Optional: let you know it happened, but isn't critical yet)
-export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u)/bus"
-notify-send -u normal "Git Annex Watchdog" "Process crashed and was successfully restarted."
+    # Notify (Optional: let you know it happened, but isn't critical yet)
+    notify-send -u normal "Git Annex Watchdog" "Process crashed and was successfully restarted."
+else
+    # Restart failed
+    echo "$(date): Failed to restart git-annex assistant." >> "$LOG_FILE"
+    notify-send -u critical "Git Annex Watchdog" "Failed to restart the assistant. Please check manually."
+    exit 1
+fi
