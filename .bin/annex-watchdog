@@ -3,12 +3,38 @@
 # Configuration
 STATE_FILE="${XDG_RUNTIME_DIR:-$HOME/.cache}/annex-watchdog-timestamp"
 CHECK_FILE="${XDG_RUNTIME_DIR:-$HOME/.cache}/annex-watchdog-lastcheck"
-LOG_FILE="$HOME/annex-watchdog.log"
+LOG_DIR="$HOME/.log"
+LOG_FILE="$LOG_DIR/annex-watchdog.log"
+MAX_LOG_SIZE=1048576  # 1MB in bytes
+MAX_LOG_FILES=5       # Keep 5 rotated logs
 # If a crash happens within this many seconds of the last one, it's a loop.
 THRESHOLD_SECONDS=600 # 10 minutes
 
 # Set DBUS address for notifications
 export DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$(id -u)/bus}"
+
+# Ensure log directory exists
+mkdir -p "$LOG_DIR"
+
+# Log rotation function
+rotate_logs() {
+    if [ -f "$LOG_FILE" ]; then
+        local size=$(stat -f%z "$LOG_FILE" 2>/dev/null || stat -c%s "$LOG_FILE" 2>/dev/null || echo 0)
+        if [ "$size" -ge "$MAX_LOG_SIZE" ]; then
+            # Rotate existing logs
+            for i in $(seq $((MAX_LOG_FILES - 1)) -1 1); do
+                if [ -f "$LOG_FILE.$i" ]; then
+                    mv "$LOG_FILE.$i" "$LOG_FILE.$((i + 1))"
+                fi
+            done
+            # Move current log to .1
+            mv "$LOG_FILE" "$LOG_FILE.1"
+        fi
+    fi
+}
+
+# Rotate logs if needed
+rotate_logs
 
 # Record that we checked (always, regardless of outcome)
 CURRENT_TIME=$(date +%s)

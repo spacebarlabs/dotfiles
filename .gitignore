@@ -10,6 +10,9 @@ __pycache__/
 .bash_history
 .zsh_history
 
+# Logs
+.log/
+
 # Vim
 .vim/.netrwhist
 .vim/spell
