@@ -4,6 +4,7 @@
 # Add other plugin folders here as needed
 #
 # Reinstating them in `git refresh` is fast because they're still on disk.
+.local/share/gnome-shell/extensions/
 .oh-my-zsh-custom/plugins
 .sbl-submodules
 .tmux/plugins
