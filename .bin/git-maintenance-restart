@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Useful if there was a temporary failure like the Internet connection being down.
+
+systemctl --user daemon-reload
+systemctl --user reset-failed git-maintenance@hourly.service
+echo NOTE: Starting the git-maintenance may take some time.
+systemctl --user start git-maintenance@hourly.service
