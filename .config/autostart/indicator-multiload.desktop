@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Indicator Multiload
+Comment=System load indicator for the panel
+Exec=indicator-multiload
+Icon=utilities-system-monitor
+Terminal=false
+X-GNOME-Autostart-enabled=true
