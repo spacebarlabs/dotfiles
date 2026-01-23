@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# Configuration
+STATE_FILE="/tmp/annex-watchdog-timestamp"
+LOG_FILE="$HOME/annex-watchdog.log"
+# If a crash happens within this many seconds of the last one, it's a loop.
+THRESHOLD_SECONDS=600 # 10 minutes
+
+# Check if git-annex assistant is running
+if pgrep -f "git-annex assistant" > /dev/null; then
+    exit 0
+fi
+
+# --- If we are here, the process is DEAD ---
+
+CURRENT_TIME=$(date +%s)
+
+# Check if we have a record of a previous restart
+if [ -f "$STATE_FILE" ]; then
+    LAST_RESTART=$(cat "$STATE_FILE")
+    DIFF=$((CURRENT_TIME - LAST_RESTART))
+
+    if [ "$DIFF" -lt "$THRESHOLD_SECONDS" ]; then
+        # CRASH LOOP DETECTED
+        # Send a visual notification to the desktop (works in Gnome)
+        export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u)/bus"
+        notify-send -u critical "Git Annex Failure" "The assistant is crashing repeatedly. Watchdog has stopped restarting it."
+        
+        echo "$(date): Crash loop detected (last restart was ${DIFF}s ago). Aborting." >> "$LOG_FILE"
+        exit 1
+    fi
+fi
+
+# --- Restart Sequence ---
+
+# Update the timestamp
+echo "$CURRENT_TIME" > "$STATE_FILE"
+
+# Restart
+/usr/bin/git-annex assistant --autostart
+
+# Log
+echo "$(date): Git Annex crashed and was restarted." >> "$LOG_FILE"
+
+# Notify (Optional: let you know it happened, but isn't critical yet)
+export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u)/bus"
+notify-send -u normal "Git Annex Watchdog" "Process crashed and was successfully restarted."
