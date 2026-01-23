@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Update yadm-managed dotfiles
+# This script performs a complete update of dotfiles including:
+# 1. Pulling latest changes from the remote repository
+# 2. Syncing and updating all submodules
+# 3. Running the bootstrap script to apply configuration changes
+
+set -e
+
+yadm pull
+yadm refresh
+yadm bootstrap
