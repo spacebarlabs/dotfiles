@@ -148,3 +148,7 @@
 	path = git/dotfiles/.local/share/gnome-shell/extensions/hibernate-status@dromi
 	url = https://github.com/arelange/gnome-shell-extension-hibernate-status.git
 	shallow = true
+[submodule "/home/benjaminoakes/.vim/pack/plugins/start/vim-logseq"]
+	path = /home/benjaminoakes/.vim/pack/plugins/start/vim-logseq
+	url = https://github.com/spacebarlabs/vim-logseq.git
+	shallow = true
