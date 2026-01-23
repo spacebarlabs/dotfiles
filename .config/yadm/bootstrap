@@ -81,3 +81,15 @@ if command -v gnome-extensions >/dev/null 2>&1; then
 else
     echo "gnome-extensions CLI not found. Skipping activation."
 fi
+
+# Configure GNOME Pomodoro settings if installed
+if command -v gsettings >/dev/null 2>&1; then
+    # Check if the GNOME Pomodoro schema is installed
+    if gsettings list-schemas | grep -q "org.gnome.pomodoro.plugins.gnome"; then
+        echo "Configuring GNOME Pomodoro settings..."
+        gsettings set org.gnome.pomodoro.plugins.gnome blur-effect false
+        echo "✅ GNOME Pomodoro blur-effect disabled."
+    else
+        echo "GNOME Pomodoro not installed. Skipping pomodoro settings."
+    fi
+fi
