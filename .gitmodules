@@ -117,3 +117,12 @@
 	path = .sbl-submodules/dracula-gnome-terminal
 	url = https://github.com/dracula/gnome-terminal.git
 	shallow = true
+[submodule ".local/share/gnome-shell/extensions/appmenu-is-back@fthx"]
+	path = .local/share/gnome-shell/extensions/appmenu-is-back@fthx
+	url = https://github.com/fthx/appmenu-is-back.git
+[submodule ".local/share/gnome-shell/extensions/clipboard-indicator@tudmotu.com"]
+	path = .local/share/gnome-shell/extensions/clipboard-indicator@tudmotu.com
+	url = https://github.com/Tudmotu/gnome-shell-extension-clipboard-indicator.git
+[submodule ".local/share/gnome-shell/extensions/top-bar-organizer@julian.gse.jsts.xyz"]
+	path = .local/share/gnome-shell/extensions/top-bar-organizer@julian.gse.jsts.xyz
+	url = https://gitlab.gnome.org/june/top-bar-organizer.git
