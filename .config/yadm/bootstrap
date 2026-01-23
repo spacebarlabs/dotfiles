@@ -36,6 +36,13 @@ if command -v gsettings >/dev/null; then
     echo "✅ Dracula theme applied."
 fi
 
+# Enable GNOME extensions
+if command -v gnome-extensions >/dev/null; then
+    echo "Enabling GNOME extensions..."
+    gnome-extensions enable places-menu@gnome-shell-extensions.gcampax.github.com
+    echo "✅ GNOME extensions enabled."
+fi
+
 # Optional: Link the dircolors file for shell usage if you want it
 DIRCOLORS_SRC="$HOME/.sbl-submodules/dracula-gnome-terminal/src/dircolors"
 if [ -f "$DIRCOLORS_SRC" ] && [ ! -f "$HOME/.dircolors" ]; then
