@@ -8,19 +8,6 @@
 
 set -e
 
-echo "Updating yadm dotfiles..."
-echo ""
-
-echo "1. Pulling latest changes..."
 yadm pull
-
-echo ""
-echo "2. Refreshing submodules..."
 yadm refresh
-
-echo ""
-echo "3. Running bootstrap..."
 yadm bootstrap
-
-echo ""
-echo "✅ Update complete!"
