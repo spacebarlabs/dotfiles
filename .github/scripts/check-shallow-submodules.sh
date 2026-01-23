@@ -3,8 +3,6 @@
 # This script checks that all git submodules in .gitmodules are marked as shallow.
 # Exit with error code 1 if any submodule is not shallow.
 
-set -e
-
 GITMODULES_FILE=".gitmodules"
 EXIT_CODE=0
 
@@ -29,7 +27,7 @@ while IFS= read -r line; do
     # Extract submodule name from the line
     CURRENT_SUBMODULE=$(echo "$line" | sed 's/\[submodule "\(.*\)"\]/\1/')
     CURRENT_SHALLOW=""
-  elif [[ $line =~ shallow[[:space:]]*=[[:space:]]*true ]]; then
+  elif [[ $line =~ ^[[:space:]]*shallow[[:space:]]*=[[:space:]]*true[[:space:]]*$ ]]; then
     CURRENT_SHALLOW="true"
   fi
 done < "$GITMODULES_FILE"
