@@ -8,7 +8,10 @@ Prefer git submodules over the various plugin managers (which often use git ulti
 
 The aim is to install dependencies (apt, etc) in a single command and then install dotfiles in a single command.
 
-See also: [apt.spacebarlabs.com](https://github.com/spacebarlabs/apt.spacebarlabs.com)
+See also:
+
+- [apt.spacebarlabs.com](https://github.com/spacebarlabs/apt.spacebarlabs.com)
+- https://github.com/spacebarlabs/browser-userscripts
 
 ## Installation
 
