@@ -129,3 +129,15 @@
 	path = .local/share/gnome-shell/extensions/top-bar-organizer@julian.gse.jsts.xyz
 	url = https://gitlab.gnome.org/june/top-bar-organizer.git
 	shallow = true
+[submodule "git/dotfiles/.local/share/gnome-shell/extensions/caffeine@patapon.info"]
+	path = git/dotfiles/.local/share/gnome-shell/extensions/caffeine@patapon.info
+	url = https://github.com/eonpatapon/gnome-shell-extension-caffeine.git
+[submodule "git/dotfiles/.local/share/gnome-shell/extensions/window-on-top@yousafesaeed.github.io"]
+	path = git/dotfiles/.local/share/gnome-shell/extensions/window-on-top@yousafesaeed.github.io
+	url = https://github.com/yousafesaeed/window-on-top.git
+[submodule "git/dotfiles/.local/share/gnome-shell/extensions/mprisLabel@moon-0xff.github.com"]
+	path = git/dotfiles/.local/share/gnome-shell/extensions/mprisLabel@moon-0xff.github.com
+	url = https://github.com/moon-0xff/gnome-mpris-label.git
+[submodule "git/dotfiles/.local/share/gnome-shell/extensions/hibernate-status@dromi"]
+	path = git/dotfiles/.local/share/gnome-shell/extensions/hibernate-status@dromi
+	url = https://github.com/arelange/gnome-shell-extension-hibernate-status.git
