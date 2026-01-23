@@ -2,6 +2,10 @@
 .bundle
 *.sw[nop]
 
+# Python
+__pycache__/
+*.pyc
+
 # Shell history files
 .bash_history
 .zsh_history

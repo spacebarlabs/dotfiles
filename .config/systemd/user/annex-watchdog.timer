@@ -1,0 +1,11 @@
+[Unit]
+Description=Git Annex Assistant Watchdog Timer
+Documentation=https://github.com/spacebarlabs/dotfiles
+
+[Timer]
+# Check every 5 minutes
+OnBootSec=1min
+OnUnitActiveSec=5min
+
+[Install]
+WantedBy=timers.target

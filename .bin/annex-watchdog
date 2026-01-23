@@ -2,6 +2,7 @@
 
 # Configuration
 STATE_FILE="${XDG_RUNTIME_DIR:-$HOME/.cache}/annex-watchdog-timestamp"
+CHECK_FILE="${XDG_RUNTIME_DIR:-$HOME/.cache}/annex-watchdog-lastcheck"
 LOG_FILE="$HOME/annex-watchdog.log"
 # If a crash happens within this many seconds of the last one, it's a loop.
 THRESHOLD_SECONDS=600 # 10 minutes
@@ -9,14 +10,17 @@ THRESHOLD_SECONDS=600 # 10 minutes
 # Set DBUS address for notifications
 export DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$(id -u)/bus}"
 
+# Record that we checked (always, regardless of outcome)
+CURRENT_TIME=$(date +%s)
+mkdir -p "$(dirname "$CHECK_FILE")"
+echo "$CURRENT_TIME" > "$CHECK_FILE"
+
 # Check if git-annex assistant is running
 if pgrep -f "git-annex assistant" > /dev/null; then
     exit 0
 fi
 
 # --- If we are here, the process is DEAD ---
-
-CURRENT_TIME=$(date +%s)
 
 # Check if we have a record of a previous restart
 if [ -f "$STATE_FILE" ]; then
