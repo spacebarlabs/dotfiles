@@ -19,6 +19,10 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Check all submodules are shallow
+        run: |
+          bash .github/scripts/check-shallow-submodules.sh
+
       - name: Install required packages
         run: |
           # Bootstrap: Install repository configuration package

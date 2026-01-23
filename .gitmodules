@@ -91,12 +91,15 @@
 [submodule ".vim/pack/plugins/start/vim-eunuch"]
 	path = .vim/pack/plugins/start/vim-eunuch
 	url = https://github.com/tpope/vim-eunuch
+	shallow = true
 [submodule ".oh-my-zsh-custom/plugins/zsh-autosuggestions"]
 	path = .oh-my-zsh-custom/plugins/zsh-autosuggestions
 	url = https://github.com/zsh-users/zsh-autosuggestions
+	shallow = true
 [submodule ".oh-my-zsh-custom/plugins/zsh-syntax-highlighting"]
 	path = .oh-my-zsh-custom/plugins/zsh-syntax-highlighting
 	url = https://github.com/zsh-users/zsh-syntax-highlighting
+	shallow = true
 [submodule ".tmux/plugins/tmux-resurrect"]
 	path = .tmux/plugins/tmux-resurrect
 	url = https://github.com/tmux-plugins/tmux-resurrect
@@ -132,15 +135,20 @@
 [submodule "git/dotfiles/.local/share/gnome-shell/extensions/caffeine@patapon.info"]
 	path = git/dotfiles/.local/share/gnome-shell/extensions/caffeine@patapon.info
 	url = https://github.com/eonpatapon/gnome-shell-extension-caffeine.git
+	shallow = true
 [submodule "git/dotfiles/.local/share/gnome-shell/extensions/window-on-top@yousafesaeed.github.io"]
 	path = git/dotfiles/.local/share/gnome-shell/extensions/window-on-top@yousafesaeed.github.io
 	url = https://github.com/yousafesaeed/window-on-top.git
+	shallow = true
 [submodule "git/dotfiles/.local/share/gnome-shell/extensions/mprisLabel@moon-0xff.github.com"]
 	path = git/dotfiles/.local/share/gnome-shell/extensions/mprisLabel@moon-0xff.github.com
 	url = https://github.com/moon-0xff/gnome-mpris-label.git
+	shallow = true
 [submodule "git/dotfiles/.local/share/gnome-shell/extensions/hibernate-status@dromi"]
 	path = git/dotfiles/.local/share/gnome-shell/extensions/hibernate-status@dromi
 	url = https://github.com/arelange/gnome-shell-extension-hibernate-status.git
+	shallow = true
 [submodule "/home/benjaminoakes/.vim/pack/plugins/start/vim-logseq"]
 	path = .vim/pack/plugins/start/vim-logseq
 	url = https://github.com/spacebarlabs/vim-logseq.git
+	shallow = true
