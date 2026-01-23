@@ -10,8 +10,8 @@ The aim is to install dependencies (apt, etc) in a single command and then insta
 
 See also:
 
-- [apt.spacebarlabs.com](https://github.com/spacebarlabs/apt.spacebarlabs.com)
-- https://github.com/spacebarlabs/browser-userscripts
+- [apt.spacebarlabs.com](https://apt.spacebarlabs.com)
+- [browser-userscripts.spacebarlabs.com](https://browser-userscripts.spacebarlabs.com)
 
 ## Installation
 
