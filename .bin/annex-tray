@@ -12,7 +12,8 @@ from gi.repository import Gtk, AyatanaAppIndicator3 as AppIndicator, GLib
 
 # CONFIGURATION
 AUTOSTART_FILE = os.path.expanduser("~/.config/git-annex/autostart")
-WATCHDOG_CHECK_FILE = os.path.expanduser(os.environ.get('XDG_RUNTIME_DIR', os.path.expanduser('~/.cache')) + '/annex-watchdog-lastcheck')
+xdg_runtime = os.environ.get('XDG_RUNTIME_DIR', os.path.expanduser('~/.cache'))
+WATCHDOG_CHECK_FILE = os.path.join(xdg_runtime, 'annex-watchdog-lastcheck')
 RECENT_LIMIT = 10
 
 class AnnexTray:
