@@ -13,6 +13,7 @@
 	pfwl = push --set-upstream --force-with-lease --force-if-includes origin HEAD
 	st = status
 	refresh = "!test -f .gitmodules_trash_safe && grep -v '^#' .gitmodules_trash_safe | grep -v '^$' | xargs -r trash-put; git submodule sync --recursive && git submodule update --init --recursive"
+	update = "!git pull && git refresh && yadm bootstrap"
 	whoami = !echo \"$(git config user.name) <$(git config user.email)>\"
 
 	# typos
