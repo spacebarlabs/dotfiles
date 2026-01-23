@@ -53,14 +53,14 @@ class AnnexTray:
         self.sync_item.connect('activate', self.run_sync)
         self.menu.append(self.sync_item)
 
-        # Watchdog status (above Open Webapp)
-        self.watchdog_item = Gtk.MenuItem(label="🐕 Watchdog: Unknown")
-        self.watchdog_item.set_sensitive(False)
-        self.menu.append(self.watchdog_item)
-
         self.web_item = Gtk.MenuItem(label="🟢 Open Webapp")
         self.web_item.connect('activate', self.open_webapp)
         self.menu.append(self.web_item)
+
+        # Watchdog status (above Quit)
+        self.watchdog_item = Gtk.MenuItem(label="🐕 Watchdog: Unknown")
+        self.watchdog_item.set_sensitive(False)
+        self.menu.append(self.watchdog_item)
         
         self.quit_item = Gtk.MenuItem(label="Quit")
         self.quit_item.connect('activate', self.quit)
