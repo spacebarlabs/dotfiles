@@ -47,7 +47,6 @@
 	defaultBranch = main
 [include]
 	# load local changes last so personal settings can override shared settings
-	path = ~/.gitconfig.d/user # use this to set username/email
 	path = ~/.gitconfig.local # use this for machine-local settings
 [rebase]
 	autoStash = true
