@@ -25,6 +25,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Check all submodules are shallow
+        run: |
+          bash .github/scripts/check-shallow-submodules.sh
+
       - name: Update submodules
         id: update
         run: |
