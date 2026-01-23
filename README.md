@@ -23,7 +23,7 @@ yadm bootstrap
 ## Updating
 
 ```bash
-yadm-update
+yadm update
 ```
 
 Or manually:
