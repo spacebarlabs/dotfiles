@@ -1,0 +1,172 @@
+#!/usr/bin/env python3
+import os
+import signal
+import subprocess
+import time
+import gi
+import threading
+
+gi.require_version('Gtk', '3.0')
+gi.require_version('AyatanaAppIndicator3', '0.1')
+from gi.repository import Gtk, AyatanaAppIndicator3 as AppIndicator, GLib
+
+# CONFIGURATION
+AUTOSTART_FILE = os.path.expanduser("~/.config/git-annex/autostart")
+RECENT_LIMIT = 10
+
+class AnnexTray:
+    def __init__(self):
+        self.APP_ID = "git-annex-monitor"
+        
+        # 1. Setup the Indicator
+        # Start with the idle symbolic icon
+        self.indicator = AppIndicator.Indicator.new(
+            self.APP_ID,
+            "folder-remote-symbolic", 
+            AppIndicator.IndicatorCategory.APPLICATION_STATUS
+        )
+        self.indicator.set_status(AppIndicator.IndicatorStatus.ACTIVE)
+        
+        # 2. Setup the Menu
+        self.menu = Gtk.Menu()
+        self.indicator.set_menu(self.menu)
+
+        self.repo_items = [] 
+        
+        # Header
+        self.header_item = Gtk.MenuItem(label="Git Annex Status")
+        self.header_item.set_sensitive(False)
+        self.menu.append(self.header_item)
+        self.menu.append(Gtk.SeparatorMenuItem())
+        
+        # -- Dynamic Repo Items Start -- 
+        self.dynamic_section_start = 2
+
+        self.sep_controls = Gtk.SeparatorMenuItem()
+        self.menu.append(self.sep_controls)
+
+        # Controls
+        self.sync_item = Gtk.MenuItem(label="⚡ Force Sync All")
+        self.sync_item.connect('activate', self.run_sync)
+        self.menu.append(self.sync_item)
+
+        self.web_item = Gtk.MenuItem(label="🟢 Open Webapp")
+        self.web_item.connect('activate', self.open_webapp)
+        self.menu.append(self.web_item)
+        
+        self.quit_item = Gtk.MenuItem(label="Quit")
+        self.quit_item.connect('activate', self.quit)
+        self.menu.append(self.quit_item)
+
+        self.menu.show_all()
+        
+        # Start Loop (5s)
+        GLib.timeout_add_seconds(5, self.update_loop)
+        self.update_loop()
+
+    def get_repo_status(self):
+        if not os.path.exists(AUTOSTART_FILE): return []
+        results = []
+        with open(AUTOSTART_FILE, 'r') as f:
+            repos = [line.strip() for line in f if line.strip()]
+
+        for repo in repos:
+            repo_name = os.path.basename(repo)
+            if not os.path.isdir(repo):
+                results.append({'name': repo_name, 'status': 'missing', 'path': repo, 'text': f"❌ {repo_name} (Missing)"})
+                continue
+            
+            # Check Transfers
+            try:
+                cmd = f"cd '{repo}' && git annex info --fast 2>/dev/null | grep 'transfers in progress'"
+                output = subprocess.check_output(cmd, shell=True).decode('utf-8').strip()
+                count = output.split()[-1] if output else "0"
+                if count == "none": count = "0"
+            except: count = "0"
+
+            # Check Time
+            log_file = os.path.join(repo, ".git/annex/daemon.log")
+            time_str, is_recent = "Never", False
+            if os.path.exists(log_file):
+                diff = time.time() - os.path.getmtime(log_file)
+                if diff < RECENT_LIMIT: is_recent = True
+                if diff < 60: time_str = f"{int(diff)}s ago"
+                elif diff < 3600: time_str = f"{int(diff/60)}m ago"
+                else: time_str = f"{int(diff/3600)}h ago"
+
+            if int(count) > 0:
+                results.append({'name': repo_name, 'status': 'syncing', 'path': repo, 'text': f"🔄 {repo_name} ({count} active)"})
+            elif is_recent:
+                results.append({'name': repo_name, 'status': 'recent', 'path': repo, 'text': f"💠 {repo_name} ({time_str})"})
+            else:
+                results.append({'name': repo_name, 'status': 'idle', 'path': repo, 'text': f"✅ {repo_name} ({time_str})"})
+        return results
+
+    def run_sync(self, _):
+        def sync_thread():
+            subprocess.run(["notify-send", "Git Annex", "Starting Force Sync..."])
+            if os.path.exists(AUTOSTART_FILE):
+                with open(AUTOSTART_FILE, 'r') as f:
+                    for line in f:
+                        r = line.strip()
+                        if os.path.isdir(r): subprocess.run(f"cd '{r}' && git annex sync", shell=True)
+            subprocess.run(["notify-send", "Git Annex", "Sync Complete"])
+            GLib.idle_add(self.update_loop)
+        threading.Thread(target=sync_thread).start()
+
+    def open_webapp(self, _):
+        if not os.path.exists(AUTOSTART_FILE): return
+        with open(AUTOSTART_FILE, 'r') as f:
+            first = f.readline().strip()
+        if first: subprocess.run(f"cd '{first}' && git annex webapp &", shell=True)
+
+    def quit(self, _):
+        Gtk.main_quit()
+
+    def update_loop(self):
+        repos = self.get_repo_status()
+        
+        # 1. Update Icon
+        any_syncing = any(r['status'] == 'syncing' for r in repos)
+        any_recent = any(r['status'] == 'recent' for r in repos)
+        
+        if any_syncing:
+            # "view-refresh-symbolic" is the standard 'looping arrows' icon in Ubuntu
+            self.indicator.set_icon_full("view-refresh-symbolic", "Syncing")
+        elif any_recent:
+            # "document-open-recent-symbolic" is usually a clock or page with a clock
+            self.indicator.set_icon_full("document-open-recent-symbolic", "Recent Activity")
+        else:
+            # "folder-remote-symbolic" is the line-art network folder
+            self.indicator.set_icon_full("folder-remote-symbolic", "Idle")
+
+        # 2. Update Menu
+        while len(self.repo_items) < len(repos):
+            new_item = Gtk.MenuItem(label="")
+            new_item.repo_path = None 
+            new_item.connect('activate', self.on_repo_click)
+            pos = self.dynamic_section_start + len(self.repo_items)
+            self.menu.insert(new_item, pos)
+            self.repo_items.append(new_item)
+            new_item.show()
+
+        while len(self.repo_items) > len(repos):
+            item = self.repo_items.pop()
+            self.menu.remove(item)
+
+        for i, repo_data in enumerate(repos):
+            item = self.repo_items[i]
+            if item.get_label() != repo_data['text']:
+                item.set_label(repo_data['text'])
+            item.repo_path = repo_data['path']
+
+        return True
+
+    def on_repo_click(self, widget):
+        path = getattr(widget, "repo_path", None)
+        if path: subprocess.Popen(['xdg-open', path])
+
+if __name__ == "__main__":
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    app = AnnexTray()
+    Gtk.main()
