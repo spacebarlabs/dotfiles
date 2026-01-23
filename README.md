@@ -23,6 +23,12 @@ yadm bootstrap
 ## Updating
 
 ```bash
+yadm update
+```
+
+Or manually:
+
+```bash
 yadm pull
 yadm refresh # see .gitconfig for details
 yadm bootstrap
