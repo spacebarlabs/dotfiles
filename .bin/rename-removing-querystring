@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Loop through all files in the current directory
+for file in *\?*; do
+    # Check if the file exists
+    if [[ -e "$file" ]]; then
+        # Extract the base name by removing the query string
+        new_name="${file%%\?*}"
+        
+        # Check for filename collision
+        if [[ -e "$new_name" && "$file" != "$new_name" ]]; then
+            echo "Warning: Skipping '$file' - target '$new_name' already exists" >&2
+            continue
+        fi
+        
+        # Rename the file
+        mv -v "$file" "$new_name"
+    fi
+done
