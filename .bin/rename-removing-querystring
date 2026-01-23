@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Loop through all files in the current directory
+for file in *\?*; do
+    # Check if the file exists
+    if [[ -e "$file" ]]; then
+        # Extract the base name by removing the query string
+        new_name="${file%%\?*}"
+        # Rename the file
+        mv -v "$file" "$new_name"
+    fi
+done
