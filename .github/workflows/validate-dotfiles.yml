@@ -1,4 +1,5 @@
 name: Validate Dotfiles
+# Validates dotfiles configuration across different environments
 
 on:
   push:
@@ -20,8 +21,16 @@ jobs:
 
       - name: Install required packages
         run: |
+          # Bootstrap: Install repository configuration package
+          wget -qO /tmp/sbl-apt-repos.deb https://apt.spacebarlabs.com/sbl-apt-repos.deb
+          sudo apt install -y /tmp/sbl-apt-repos.deb
+          rm /tmp/sbl-apt-repos.deb
+          
+          # Update package lists to see newly available packages
           sudo apt-get update
-          sudo apt-get install -y bash zsh vim tmux git ruby
+          
+          # Install sbl-cli-utils which includes mise and other utilities
+          sudo apt-get install -y sbl-cli-utils bash zsh vim tmux git ruby
 
       - name: Validate Bash configuration
         run: |
@@ -43,21 +52,6 @@ jobs:
           # Create required tmux user.conf file (referenced in .zshrc)
           mkdir -p $HOME/.tmux
           touch $HOME/.tmux/user.conf
-          
-          # Create mise directory (required by .zshrc)
-          mkdir -p $HOME/.local/bin
-          # Create a dummy mise script that outputs valid shell code for eval
-          cat > $HOME/.local/bin/mise << 'EOF'
-          #!/bin/bash
-          if [[ "$1" == "activate" ]]; then
-            # Output valid shell initialization code
-            echo "# mise activated for $2"
-          else
-            # Handle other commands gracefully
-            exit 0
-          fi
-          EOF
-          chmod +x $HOME/.local/bin/mise
           
           # Disable oh-my-zsh insecure directory warnings in CI environment
           export ZSH_DISABLE_COMPFIX="true"
