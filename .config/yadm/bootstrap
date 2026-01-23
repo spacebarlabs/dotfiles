@@ -1,33 +1,43 @@
 #!/bin/bash
 
 # Runs automatically one time when first cloning.
-#
 # Run manually with `yadm bootstrap` as needed.
 
-# Install Dracula for GNOME Terminal
-# Idempotent: Overwrites the keys of the default profile
-DRACULA_SCRIPT="$HOME/.sbl-submodules/dracula-gnome-terminal/install.sh"
+if command -v gsettings >/dev/null; then
+    echo "Applying Dracula settings to GNOME Terminal (Directly)..."
 
-if [ -x "$DRACULA_SCRIPT" ] && command -v gsettings >/dev/null; then
-    # Check if GNOME Terminal schema is available
-    if ! gsettings list-schemas | grep -q "org.gnome.Terminal"; then
-        echo "GNOME Terminal not installed or configured, skipping Dracula theme installation"
-        exit 0
+    # 1. Get the UUID of the default profile
+    PROFILE_UUID=$(gsettings get org.gnome.Terminal.ProfilesList default | tr -d "'")
+    
+    # 2. Define the dconf path for this profile
+    PROFILE_PATH="/org/gnome/terminal/legacy/profiles:/:$PROFILE_UUID"
+
+    # 3. Ensure the profile is in the global list (Fixes "empty list" issues)
+    CURRENT_LIST=$(gsettings get org.gnome.Terminal.ProfilesList list)
+    if [[ "$CURRENT_LIST" == *"@as []"* ]] || [[ "$CURRENT_LIST" == *"[]"* ]]; then
+        gsettings set org.gnome.Terminal.ProfilesList list "['$PROFILE_UUID']"
     fi
 
-    echo "Applying Dracula settings to GNOME Terminal..."
+    # 4. Inject Dracula Colors directly (Bypassing the flaky install.sh script)
+    #    Palette: Dracula standard
+    dconf write "$PROFILE_PATH/palette" "['#21222C', '#FF5555', '#50FA7B', '#F1FA8C', '#BD93F9', '#FF79C6', '#8BE9FD', '#F8F8F2', '#6272A4', '#FF6E6E', '#69FF94', '#FFFFA5', '#D6ACFF', '#FF92DF', '#A4FFFF', '#FFFFFF']"
+    
+    #    Background: #282A36 (Dark Purple)
+    dconf write "$PROFILE_PATH/background-color" "'#282A36'"
+    
+    #    Foreground: #F8F8F2 (White-ish)
+    dconf write "$PROFILE_PATH/foreground-color" "'#F8F8F2'"
+    
+    #    Settings to ensure colors are actually used
+    dconf write "$PROFILE_PATH/use-theme-colors" "false"
+    dconf write "$PROFILE_PATH/bold-color-same-as-fg" "true"
+    dconf write "$PROFILE_PATH/use-theme-transparency" "false"
 
-    # Get the UUID of the default profile
-    PROFILE_UUID=$(gsettings get org.gnome.Terminal.ProfilesList default 2>/dev/null | tr -d "'")
+    echo "✅ Dracula theme applied."
+fi
 
-    if [ -z "$PROFILE_UUID" ]; then
-        echo "Could not determine GNOME Terminal default profile, skipping Dracula theme installation"
-        exit 0
-    fi
-
-    # Run non-interactively and SKIP the shell config modification
-    "$DRACULA_SCRIPT" \
-        --scheme Dracula \
-        --profile "$PROFILE_UUID" \
-        --skip-dircolors
+# Optional: Link the dircolors file for shell usage if you want it
+DIRCOLORS_SRC="$HOME/.sbl-submodules/dracula-gnome-terminal/src/dircolors"
+if [ -f "$DIRCOLORS_SRC" ] && [ ! -f "$HOME/.dircolors" ]; then
+    ln -s "$DIRCOLORS_SRC" "$HOME/.dircolors"
 fi
