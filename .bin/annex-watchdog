@@ -3,6 +3,7 @@
 # Configuration
 STATE_FILE="${XDG_RUNTIME_DIR:-$HOME/.cache}/annex-watchdog-timestamp"
 CHECK_FILE="${XDG_RUNTIME_DIR:-$HOME/.cache}/annex-watchdog-lastcheck"
+FAILURE_FILE="${XDG_RUNTIME_DIR:-$HOME/.cache}/annex-watchdog-failure"
 LOG_DIR="$HOME/.log"
 LOG_FILE="$LOG_DIR/annex-watchdog.log"
 MAX_LOG_SIZE=1048576  # 1MB in bytes
@@ -46,6 +47,8 @@ echo "$CURRENT_TIME" > "$CHECK_FILE"
 
 # Check if git-annex assistant is running
 if pgrep -f "git-annex assistant" > /dev/null; then
+    # Clear any failure status since things are running fine
+    rm -f "$FAILURE_FILE"
     exit 0
 fi
 
@@ -63,6 +66,9 @@ if [ -f "$STATE_FILE" ]; then
 
         if [ "$DIFF" -lt "$THRESHOLD_SECONDS" ]; then
             # CRASH LOOP DETECTED
+            # Mark as failed
+            echo "crash_loop" > "$FAILURE_FILE"
+            
             # Send a visual notification to the desktop (works in Gnome)
             notify-send -u critical "Git Annex Failure" "The assistant is crashing repeatedly. Watchdog has stopped restarting it."
             
@@ -82,6 +88,9 @@ echo "$CURRENT_TIME" > "$STATE_FILE"
 
 # Restart
 if git-annex assistant --autostart; then
+    # Clear any failure status on successful restart
+    rm -f "$FAILURE_FILE"
+    
     # Log
     echo "$(date): Git Annex crashed and was restarted." >> "$LOG_FILE"
 
@@ -89,6 +98,8 @@ if git-annex assistant --autostart; then
     notify-send -u normal "Git Annex Watchdog" "Process crashed and was successfully restarted."
 else
     # Restart failed
+    echo "restart_failed" > "$FAILURE_FILE"
+    
     echo "$(date): Failed to restart git-annex assistant." >> "$LOG_FILE"
     notify-send -u critical "Git Annex Watchdog" "Failed to restart the assistant. Please check manually."
     exit 1

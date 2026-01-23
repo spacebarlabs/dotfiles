@@ -14,6 +14,7 @@ from gi.repository import Gtk, AyatanaAppIndicator3 as AppIndicator, GLib
 AUTOSTART_FILE = os.path.expanduser("~/.config/git-annex/autostart")
 xdg_runtime = os.environ.get('XDG_RUNTIME_DIR', os.path.expanduser('~/.cache'))
 WATCHDOG_CHECK_FILE = os.path.join(xdg_runtime, 'annex-watchdog-lastcheck')
+WATCHDOG_FAILURE_FILE = os.path.join(xdg_runtime, 'annex-watchdog-failure')
 RECENT_LIMIT = 10
 
 class AnnexTray:
@@ -93,6 +94,10 @@ class AnnexTray:
         except (ValueError, IOError):
             return "Check status unknown"
 
+    def is_watchdog_failing(self):
+        """Check if watchdog has detected a failure."""
+        return os.path.exists(WATCHDOG_FAILURE_FILE)
+
     def get_repo_status(self):
         if not os.path.exists(AUTOSTART_FILE): return []
         results = []
@@ -155,18 +160,20 @@ class AnnexTray:
     def update_loop(self):
         repos = self.get_repo_status()
         watchdog_status = self.get_watchdog_status()
+        watchdog_failing = self.is_watchdog_failing()
         
         # Update watchdog status
         self.watchdog_item.set_label(f"🐕 Watchdog: {watchdog_status}")
         
         # 1. Update Icon
-        any_syncing = any(r['status'] == 'syncing' for r in repos)
-        any_recent = any(r['status'] == 'recent' for r in repos)
-        
-        if any_syncing:
+        # Priority: watchdog failure > syncing > recent activity > idle
+        if watchdog_failing:
+            # "dialog-warning-symbolic" is the standard warning icon in GNOME
+            self.indicator.set_icon_full("dialog-warning-symbolic", "Watchdog Failure")
+        elif any(r['status'] == 'syncing' for r in repos):
             # "view-refresh-symbolic" is the standard 'looping arrows' icon in Ubuntu
             self.indicator.set_icon_full("view-refresh-symbolic", "Syncing")
-        elif any_recent:
+        elif any(r['status'] == 'recent' for r in repos):
             # "document-open-recent-symbolic" is usually a clock or page with a clock
             self.indicator.set_icon_full("document-open-recent-symbolic", "Recent Activity")
         else:
