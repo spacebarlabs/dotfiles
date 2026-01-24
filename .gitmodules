@@ -128,10 +128,6 @@
 	path = .local/share/gnome-shell/extensions/clipboard-indicator@tudmotu.com
 	url = https://github.com/Tudmotu/gnome-shell-extension-clipboard-indicator.git
 	shallow = true
-[submodule ".local/share/gnome-shell/extensions/top-bar-organizer@julian.gse.jsts.xyz"]
-	path = .local/share/gnome-shell/extensions/top-bar-organizer@julian.gse.jsts.xyz
-	url = https://gitlab.gnome.org/june/top-bar-organizer.git
-	shallow = true
 [submodule "/home/benjaminoakes/.vim/pack/plugins/start/vim-logseq"]
 	path = .vim/pack/plugins/start/vim-logseq
 	url = https://github.com/spacebarlabs/vim-logseq.git
@@ -143,6 +139,12 @@
 [submodule ".local/share/gnome-shell/extensions/mprisLabel@moon-0xff.github.com"]
 	path = .local/share/gnome-shell/extensions/mprisLabel@moon-0xff.github.com
 	url = https://github.com/moon-0xff/gnome-mpris-label.git
+	shallow = true
 [submodule ".local/share/gnome-shell/extensions/hibernate-status@dromi"]
 	path = .local/share/gnome-shell/extensions/hibernate-status@dromi
 	url = https://github.com/arelange/gnome-shell-extension-hibernate-status.git
+	shallow = true
+[submodule ".local/share/gnome-shell/extensions/lilypad@shendrew.github.io"]
+	path = .local/share/gnome-shell/extensions/lilypad@shendrew.github.io
+	url = https://github.com/shendrew/Lilypad.git
+	shallow = true
