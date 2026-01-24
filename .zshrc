@@ -19,7 +19,6 @@ autoload -U zrecompile
 
 # --- Completion System Configuration ---
 
-autoload -U compinit; compinit
 autoload -U zrecompile
 
 # This allows 'cd doc' -> 'Documents' and 'cd xml' -> 'Project.XML'
