@@ -154,5 +154,5 @@
 	shallow = true
 [submodule ".local/share/gnome-shell/extensions/workspace-namer@spacebarlabs.com"]
 	path = .local/share/gnome-shell/extensions/workspace-namer@spacebarlabs.com
-	url = https://github.com/spacebarlabs/gnome-extension-workspace-namer
+	url = https://github.com/spacebarlabs/gnome-extension-workspace-namer.git
 	shallow = true
