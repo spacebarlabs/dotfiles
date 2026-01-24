@@ -140,9 +140,6 @@
 	path = .local/share/gnome-shell/extensions/workspace-namer@spacebarlabs.com
 	url = https://github.com/spacebarlabs/gnome-extension-workspace-namer.git
 	shallow = true
-[submodule ".local/share/gnome-shell/extensions/window-on-top@yousafesaeed.github.io"]
-	path = .local/share/gnome-shell/extensions/window-on-top@yousafesaeed.github.io
-	url = https://github.com/yousafesaeed/window-on-top.git
 [submodule ".local/share/gnome-shell/extensions/mprisLabel@moon-0xff.github.com"]
 	path = .local/share/gnome-shell/extensions/mprisLabel@moon-0xff.github.com
 	url = https://github.com/moon-0xff/gnome-mpris-label.git
