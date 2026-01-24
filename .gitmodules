@@ -152,3 +152,7 @@
 	path = .vim/pack/plugins/start/vim-logseq
 	url = https://github.com/spacebarlabs/vim-logseq.git
 	shallow = true
+[submodule ".local/share/gnome-shell/extensions/workspace-namer@spacebarlabs.com"]
+	path = .local/share/gnome-shell/extensions/workspace-namer@spacebarlabs.com
+	url = https://github.com/spacebarlabs/gnome-extension-workspace-namer
+	shallow = true
