@@ -1,1 +1,1 @@
-../../../.sbl-submodules/gnome-shell-extensions/extensions/places-menu
+/home/benjaminoakes/.sbl-submodules/gnome-shell-extensions/extensions/places-menu
