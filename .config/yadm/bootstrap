@@ -48,6 +48,37 @@ GNOME_EXT_DIR="$HOME/.local/share/gnome-shell/extensions"
 # Ensure the directory exists (yadm usually handles this via submodules, but good for safety)
 mkdir -p "$GNOME_EXT_DIR"
 
+# File containing the subdirectory mappings
+SUBDIR_CONFIG="$HOME/.gitmodules_subdirs"
+
+if [ -f "$SUBDIR_CONFIG" ]; then
+  echo "Linking submodule subdirectories..."
+
+  # Filter comments/empty lines and read each mapping
+  grep -v '^#' "$SUBDIR_CONFIG" | grep -v '^$' | while read -r line; do
+    # Split by the colon
+    # Using ${line%%:*} to get the source and ${line#*: } to get the target
+    # trim leading/trailing spaces if necessary
+    SOURCE_PATH=$(echo "${line%%:*}" | xargs)
+    TARGET_PATH=$(echo "${line#*:}" | xargs)
+
+    # Convert to absolute paths
+    FULL_SOURCE="$HOME/$SOURCE_PATH"
+    FULL_TARGET="$HOME/$TARGET_PATH"
+
+    if [ -d "$FULL_SOURCE" ]; then
+      # Ensure the parent directory of the target exists
+      mkdir -p "$(dirname "$FULL_TARGET")"
+
+      # Create or update the symlink
+      ln -sfn "$FULL_SOURCE" "$FULL_TARGET"
+      echo "✅ Linked $TARGET_PATH"
+    else
+      echo "⚠️  Source not found: $SOURCE_PATH"
+    fi
+  done
+fi
+
 echo "Checking for GNOME Shell Extensions in $GNOME_EXT_DIR..."
 
 # Check if the gnome-extensions CLI tool exists before proceeding
