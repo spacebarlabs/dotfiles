@@ -64,6 +64,8 @@ alias tit=git
 alias norg="gron --ungron"
 alias ungron="gron --ungron"
 
+alias fd=fdfind
+
 # From a PeepCode video
 take() {
   mkdir -p "$1"
