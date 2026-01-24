@@ -24,7 +24,7 @@ mise_prompt_info() {
 
 yadm_prompt_info() {
   # Only show yadm branch when in home directory
-  if [[ "$PWD" != "$HOME"* ]]; then
+  if [[ "$PWD" != "$HOME" ]]; then
     return
   fi
 
