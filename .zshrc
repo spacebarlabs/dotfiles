@@ -88,6 +88,21 @@ up() {
   cd "$d" || return
 }
 
+# cd to git root
+git-cd() {
+  # 1. Get the root directory
+  local root
+  root=$(git rev-parse --show-toplevel 2>/dev/null)
+
+  # 2. Check if we are actually in a git repo
+  if [[ -n "$root" ]]; then
+    cd "$root"
+  else
+    echo "Error: Not currently in a git repository."
+    return 1
+  fi
+}
+
 PATH=$HOME/.bin:$PATH:$HOME/bin # Make personal scripts available
 
 export CDPATH="$CDPATH:$HOME/git"
