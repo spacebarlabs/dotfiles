@@ -52,27 +52,31 @@ mkdir -p "$GNOME_EXT_DIR"
 SUBDIR_CONFIG="$HOME/.gitmodules_subdirs"
 
 if [ -f "$SUBDIR_CONFIG" ]; then
-  echo "Linking submodule subdirectories..."
-
+  echo "Linking submodule subdirectories (relatively)..."
+  
   # Filter comments/empty lines and read each mapping
   grep -v '^#' "$SUBDIR_CONFIG" | grep -v '^$' | while read -r line; do
     # Split by the colon
-    # Using ${line%%:*} to get the source and ${line#*: } to get the target
-    # trim leading/trailing spaces if necessary
     SOURCE_PATH=$(echo "${line%%:*}" | xargs)
     TARGET_PATH=$(echo "${line#*:}" | xargs)
 
-    # Convert to absolute paths
+    # Use absolute paths for the command, but -r makes the link relative
     FULL_SOURCE="$HOME/$SOURCE_PATH"
     FULL_TARGET="$HOME/$TARGET_PATH"
 
     if [ -d "$FULL_SOURCE" ]; then
       # Ensure the parent directory of the target exists
       mkdir -p "$(dirname "$FULL_TARGET")"
-
-      # Create or update the symlink
-      ln -sfn "$FULL_SOURCE" "$FULL_TARGET"
-      echo "✅ Linked $TARGET_PATH"
+      
+      # -s: symbolic
+      # -f: remove existing destination files
+      # -n: treat destination that is a symlink to a directory as a normal file
+      # -r: create symbolic links relative to link location (GNU only)
+      ln -sfnr "$FULL_SOURCE" "$FULL_TARGET"
+      
+      # Verify it's relative
+      REL_TARGET=$(readlink "$FULL_TARGET")
+      echo "✅ Linked $TARGET_PATH -> $REL_TARGET"
     else
       echo "⚠️  Source not found: $SOURCE_PATH"
     fi
