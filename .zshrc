@@ -104,6 +104,9 @@ eval "$(mise activate zsh)"
 # Check if Git Maintenance failed recently
 if systemctl --user --quiet is-failed git-maintenance@hourly.service; then
     echo -e "\033[0;31m[WARNING] Git background maintenance is failing!\033[0m"
-    echo "Run this to debug: journalctl --user -u git-maintenance@hourly.service -n 20"
+    echo "Run this to debug:"
+    echo "  journalctl --user -u git-maintenance@hourly.service -n 20"
+    echo "Or restart maintenance with:"
+    echo "  git-maintenance-restart"
     echo ""
 fi
