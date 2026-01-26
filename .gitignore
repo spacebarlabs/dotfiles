@@ -25,3 +25,7 @@ __pycache__/
 # Git Config
 .gitconfig.d/user
 .gitconfig.local
+
+# SSH
+.ssh/config
+.ssh/id_*
