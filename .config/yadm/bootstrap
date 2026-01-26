@@ -126,27 +126,37 @@ if ! command -v mise &> /dev/null; then
 fi
 
 # --- Framework Audio Buzz Fix ---
+#
+# The Framework 11th Gen Realtek audio chip powers down after 1 second of
+# silence, causing a voltage spike ('pop/buzz') on the headphone jack when
+# waking or sleeping. This fix forces the driver to stay active, eliminating
+# the noise at the cost of negligible battery usage.
 VENDOR=$(cat /sys/class/dmi/id/sys_vendor 2>/dev/null | tr -d '\0' | xargs)
 CONFIG_FILE="/etc/modprobe.d/audio-fix.conf"
 FIX_LINE="options snd_hda_intel power_save=0"
 
 if [[ "$VENDOR" == "Framework" ]]; then
-    echo ">> Framework Laptop detected."
+    echo ">> Framework Laptop detected. Checking audio settings..."
 
-    # Check if file exists AND contains the exact fix line
+    # 1. Permanent Fix (Survives Reboot)
     if [ -f "$CONFIG_FILE" ] && grep -qF "$FIX_LINE" "$CONFIG_FILE"; then
-        echo "   [OK] Audio fix is already applied in $CONFIG_FILE."
+        echo "   [OK] Permanent fix already exists in $CONFIG_FILE."
     else
-        echo "   [..] Applying audio power-save fix..."
+        echo "   [..] Applying permanent fix..."
         echo "$FIX_LINE" | sudo tee "$CONFIG_FILE" > /dev/null
-
-        # Verify it actually wrote correctly
-        if grep -qF "$FIX_LINE" "$CONFIG_FILE"; then
-            echo "   [OK] Fix applied successfully. Please reboot."
-        else
-            echo "   [!!] Failed to apply fix. Please check sudo permissions."
-        fi
+        echo "   [OK] Permanent fix applied."
     fi
+
+    # 2. Immediate Fix (No Reboot Required)
+    CURRENT_STATE=$(cat /sys/module/snd_hda_intel/parameters/power_save 2>/dev/null)
+    if [[ "$CURRENT_STATE" == "0" ]]; then
+        echo "   [OK] Runtime fix is already active."
+    else
+        echo "   [..] Applying immediate runtime fix..."
+        echo 0 | sudo tee /sys/module/snd_hda_intel/parameters/power_save > /dev/null
+        echo "   [OK] Immediate fix applied."
+    fi
+
 else
     echo ">> Not a Framework laptop. Skipping audio fix."
 fi
