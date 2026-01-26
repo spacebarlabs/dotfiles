@@ -8,7 +8,7 @@ SUBDIR_CONFIG="$HOME/.gitmodules_subdirs"
 
 if [ -f "$SUBDIR_CONFIG" ]; then
   echo "Linking submodule subdirectories (relatively)..."
-  
+
   # Filter comments/empty lines and read each mapping
   grep -v '^#' "$SUBDIR_CONFIG" | grep -v '^$' | while read -r line; do
     # Split by the colon
@@ -22,13 +22,13 @@ if [ -f "$SUBDIR_CONFIG" ]; then
     if [ -d "$FULL_SOURCE" ]; then
       # Ensure the parent directory of the target exists
       mkdir -p "$(dirname "$FULL_TARGET")"
-      
+
       # -s: symbolic
       # -f: remove existing destination files
       # -n: treat destination that is a symlink to a directory as a normal file
       # -r: create symbolic links relative to link location (GNU only)
       ln -sfnr "$FULL_SOURCE" "$FULL_TARGET"
-      
+
       # Verify it's relative
       REL_TARGET=$(readlink "$FULL_TARGET")
       echo "✅ Linked $TARGET_PATH -> $REL_TARGET"
@@ -123,4 +123,30 @@ fi
 if ! command -v mise &> /dev/null; then
     echo "⚠️  WARNING: mise is not installed. Tool version management will not be available."
     echo "   Install mise from: https://mise.jdx.dev/"
+fi
+
+# --- Framework Audio Buzz Fix ---
+VENDOR=$(cat /sys/class/dmi/id/sys_vendor 2>/dev/null | tr -d '\0' | xargs)
+CONFIG_FILE="/etc/modprobe.d/audio-fix.conf"
+FIX_LINE="options snd_hda_intel power_save=0"
+
+if [[ "$VENDOR" == "Framework" ]]; then
+    echo ">> Framework Laptop detected."
+
+    # Check if file exists AND contains the exact fix line
+    if [ -f "$CONFIG_FILE" ] && grep -qF "$FIX_LINE" "$CONFIG_FILE"; then
+        echo "   [OK] Audio fix is already applied in $CONFIG_FILE."
+    else
+        echo "   [..] Applying audio power-save fix..."
+        echo "$FIX_LINE" | sudo tee "$CONFIG_FILE" > /dev/null
+
+        # Verify it actually wrote correctly
+        if grep -qF "$FIX_LINE" "$CONFIG_FILE"; then
+            echo "   [OK] Fix applied successfully. Please reboot."
+        else
+            echo "   [!!] Failed to apply fix. Please check sudo permissions."
+        fi
+    fi
+else
+    echo ">> Not a Framework laptop. Skipping audio fix."
 fi
