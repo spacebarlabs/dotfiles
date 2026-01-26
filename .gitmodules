@@ -156,3 +156,7 @@
 	path = .sbl-submodules/order-icons
 	url = https://github.com/andia89/order-icons.git
 	shallow = true
+[submodule ".sbl-submodules/dracula-termux"]
+	path = .sbl-submodules/dracula-termux
+	url = https://github.com/dracula/termux.git
+	shallow = true

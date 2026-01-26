@@ -1,0 +1,6 @@
+# File containing subdirectory symlink mappings for git submodules
+# Format: SOURCE_PATH:TARGET_PATH
+# These will be processed by .config/yadm/bootstrap
+
+# Dracula Termux theme
+.sbl-submodules/dracula-termux/colors.properties:.termux/colors.properties
