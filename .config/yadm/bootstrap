@@ -118,3 +118,9 @@ if command -v gsettings >/dev/null 2>&1; then
         echo "GNOME Pomodoro not installed. Skipping pomodoro settings."
     fi
 fi
+
+# Warn if mise is not installed
+if ! command -v mise &> /dev/null; then
+    echo "⚠️  WARNING: mise is not installed. Tool version management will not be available."
+    echo "   Install mise from: https://mise.jdx.dev/"
+fi

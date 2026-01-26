@@ -115,7 +115,10 @@ if [ ! -f "$HOME/.tmux/user.conf" ]; then
   touch "$HOME/.tmux/user.conf"
 fi
 
-eval "$(mise activate zsh)"
+# Activate mise only if it's installed
+if command -v mise &> /dev/null; then
+  eval "$(mise activate zsh)"
+fi
 
 # Check if Git Maintenance failed recently
 if systemctl --user --quiet is-failed git-maintenance@hourly.service; then
