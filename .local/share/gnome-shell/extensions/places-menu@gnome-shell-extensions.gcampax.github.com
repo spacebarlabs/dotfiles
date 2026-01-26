@@ -1,1 +1,0 @@
-../../../../.sbl-submodules/gnome-shell-extensions/extensions/places-menu
