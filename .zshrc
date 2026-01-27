@@ -42,12 +42,11 @@ zstyle ':completion:*' group-order 'directories' 'files'
 # Automatically find new executables (rehash) immediately after installation
 zstyle ':completion:*' rehash true
 
-# --- Custom Keybindings ---
-# Bind Ctrl+e to accept autosuggestions
-bindkey '^e' autosuggest-accept
+# Bind Alt+Enter to accept and execute the suggestion immediately
+bindkey '^[^M' autosuggest-execute
 
 # Ensure this works in vi-mode 'Insert' mode
-bindkey -M viins '^e' autosuggest-accept
+bindkey -M viins '^[^M' autosuggest-execute
 
 # --- Aliases ---
 
