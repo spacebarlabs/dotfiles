@@ -128,3 +128,52 @@ if systemctl --user --quiet is-failed git-maintenance@hourly.service; then
     echo "  git-maintenance-restart"
     echo ""
 fi
+
+# 1. Disable the standard "error" beep (e.g. tab completion fails)
+unsetopt beep
+
+# 2. Notification Wrapper for long commands
+#    - Captures start time of commands
+#    - Rings 3 bells if command took > 60s
+#    - Uses visual notification if local, bells if SSH
+
+preexec() {
+  cmd_start_time=$SECONDS
+  cmd_name="$1"
+}
+
+precmd() {
+  if [ -n "$cmd_start_time" ]; then
+    local duration=$((SECONDS - cmd_start_time))
+
+    # Threshold: 60 seconds
+    if [ $duration -ge 60 ]; then
+
+      # Define the specific bell pattern (bell, wait, bell...)
+      ring_bell() {
+        echo -ne "\a"
+        sleep 0.1
+        echo -ne "\a"
+        sleep 0.1
+        echo -ne "\a"
+      }
+
+      # CHECK: Are we on a remote SSH session?
+      if [[ -n "$SSH_CONNECTION" || -n "$SSH_CLIENT" ]]; then
+        # --- REMOTE (SSH) ---
+        ring_bell
+      else
+        # --- LOCAL (Desktop) ---
+        # Try to send a visual bubble if notify-send exists
+        if command -v notify-send >/dev/null; then
+          notify-send "Task Finished (${duration}s)" "$cmd_name"
+        else
+          # Fallback: If notify-send is missing, use the bells
+          ring_bell
+        fi
+      fi
+    fi
+    unset cmd_start_time
+    unset cmd_name
+  fi
+}
