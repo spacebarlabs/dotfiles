@@ -129,27 +129,29 @@ if systemctl --user --quiet is-failed git-maintenance@hourly.service; then
     echo ""
 fi
 
-# 1. Disable the standard "error" beep (e.g. tab completion fails)
+# --- Notification & Silence Modifications ---
+
+# Disable the standard "error" beep (e.g., tab completion fails or backspace at start of line)
 unsetopt beep
 
-# 2. Notification Wrapper for long commands
-#    - Captures start time of commands
-#    - Rings 3 bells if command took > 60s
-#    - Uses visual notification if local, bells if SSH
-
+# Notification Wrapper for long-running commands
 preexec() {
   cmd_start_time=$SECONDS
-  cmd_name="$1"
+  cmd_full_name="$1"
+  # Capture the first word of the command to check for exit/logout
+  cmd_basename="${1%% *}"
 }
 
 precmd() {
   if [ -n "$cmd_start_time" ]; then
     local duration=$((SECONDS - cmd_start_time))
-
-    # Threshold: 60 seconds
-    if [ $duration -ge 60 ]; then
-
-      # Define the specific bell pattern (bell, wait, bell...)
+    
+    # Notify only if:
+    # 1. The command took 60 seconds or longer
+    # 2. The command was NOT 'exit' or 'logout'
+    if [ $duration -ge 60 ] && [[ "$cmd_basename" != "exit" ]] && [[ "$cmd_basename" != "logout" ]]; then
+      
+      # Define the specific 3-bell pattern with 0.1s delays
       ring_bell() {
         echo -ne "\a"
         sleep 0.1
@@ -158,22 +160,23 @@ precmd() {
         echo -ne "\a"
       }
 
-      # CHECK: Are we on a remote SSH session?
+      # Determine notification method based on connection type
       if [[ -n "$SSH_CONNECTION" || -n "$SSH_CLIENT" ]]; then
-        # --- REMOTE (SSH) ---
+        # REMOTE (SSH): Use the audible/visual bell
         ring_bell
       else
-        # --- LOCAL (Desktop) ---
-        # Try to send a visual bubble if notify-send exists
+        # LOCAL (Ubuntu Desktop): Try visual notification first
         if command -v notify-send >/dev/null; then
-          notify-send "Task Finished (${duration}s)" "$cmd_name"
+          notify-send "Task Finished (${duration}s)" "$cmd_full_name"
         else
-          # Fallback: If notify-send is missing, use the bells
+          # Fallback to bell if notify-send is unavailable locally
           ring_bell
         fi
       fi
     fi
+    # Reset variables for the next command
     unset cmd_start_time
-    unset cmd_name
+    unset cmd_basename
+    unset cmd_full_name
   fi
 }
