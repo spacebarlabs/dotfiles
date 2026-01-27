@@ -42,6 +42,10 @@ zstyle ':completion:*' group-order 'directories' 'files'
 # Automatically find new executables (rehash) immediately after installation
 zstyle ':completion:*' rehash true
 
+# Restore Emacs-style end-of-line behavior for Ctrl+e
+bindkey '^e' end-of-line
+bindkey -M viins '^e' end-of-line
+
 # Bind Alt+Enter to accept and execute the suggestion immediately
 bindkey '^[^M' autosuggest-execute
 
@@ -145,12 +149,12 @@ preexec() {
 precmd() {
   if [ -n "$cmd_start_time" ]; then
     local duration=$((SECONDS - cmd_start_time))
-    
+
     # Notify only if:
     # 1. The command took 60 seconds or longer
     # 2. The command was NOT 'exit' or 'logout'
     if [ $duration -ge 60 ] && [[ "$cmd_basename" != "exit" ]] && [[ "$cmd_basename" != "logout" ]]; then
-      
+
       # Define the specific 3-bell pattern with 0.1s delays
       ring_bell() {
         echo -ne "\a"
