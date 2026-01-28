@@ -1,0 +1,51 @@
+#!/bin/bash
+#
+# Use this script to initialize a "Bare" git-annex repository on a server.
+# This is designed for a central hub (NAS/Server) that clients push/pull from.
+#
+# USAGE: annex-setup-origin.sh [DIRECTORY] [DESCRIPTION]
+# EXAMPLE: annex-setup-origin.sh ~/git/music.annex.git "nas-music-origin"
+
+DIR=${1:-"$PWD"}
+DESC=${2:-"$(hostname)-origin"}
+
+echo "=== Setting up Git Annex Origin (Bare Repo) in $DIR ==="
+
+# 1. Create Directory
+if [ ! -d "$DIR" ]; then
+    echo "Creating directory $DIR..."
+    mkdir -p "$DIR"
+fi
+cd "$DIR" || exit 1
+
+# 2. Initialize Bare Git Repo
+# We use --bare because this server is a hub, not a working directory.
+if [ ! -d "HEAD" ]; then
+    echo "Initializing bare git repository..."
+    git init --bare
+
+    # Ensure default branch is main
+    git symbolic-ref HEAD refs/heads/main
+fi
+
+# 3. Initialize Annex
+# Note: Ensure git-annex is in the PATH on this server.
+if [ ! -d "annex" ]; then
+    echo "Initializing Annex as '$DESC'..."
+    git annex init "$DESC"
+else
+    echo "Annex already initialized."
+fi
+
+# 4. Set Group to Backup
+# This tells other nodes "I am a backup; I want all content."
+echo "Setting group to 'backup'..."
+git annex group . backup
+
+echo "=== Origin Setup Complete! ==="
+echo "  - Location: $DIR"
+echo "  - Identity: $DESC"
+echo "  - Type:     Bare Repository (Backup)"
+echo ""
+echo "You can now clone this from your clients using:"
+echo "git clone user@server:$DIR <local-dir>"

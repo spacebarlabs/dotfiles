@@ -1,0 +1,118 @@
+#!/bin/bash
+#
+# Use this script to set up a git-annex client repository.
+# It handles cloning, "Anti-Bloat" protection, and configuring
+# specific remote shell paths (useful for TrueNAS/BSD remotes).
+#
+# USAGE: annex-setup-client [DIRECTORY] [DESCRIPTION] [REMOTE_URL] [GROUP]
+#
+# EXAMPLES:
+#   Full Client (Downloads everything):
+#     annex-setup-client ~/Music "my-laptop" "user@server:git/music.annex.git" "client"
+#
+#   Manual Client (Downloads nothing automatically):
+#     annex-setup-client ~/Music "my-small-laptop" "user@server:git/music.annex.git" "manual"
+
+DIR=$1
+DESC=$2
+REMOTE_URL=$3
+GROUP=${4:-"manual"} # Default to 'manual' safety mode
+
+# --- CONFIGURATION ---
+# If your server (e.g., TrueNAS/FreeBSD) has git-annex in a non-standard path,
+# specify it here. If using standard Linux, you can leave this empty.
+REMOTE_SHELL_PATH="~/git-annex-bin/git-annex-shell"
+# ---------------------
+
+# Validation
+if [ -z "$DIR" ] || [ -z "$DESC" ] || [ -z "$REMOTE_URL" ]; then
+    echo "Error: Missing arguments."
+    echo "Usage: $0 [DIRECTORY] [DESCRIPTION] [REMOTE_URL] [GROUP]"
+    exit 1
+fi
+
+echo "=== Setting up Git Annex Client in $DIR ==="
+
+# 1. Clone or Refresh
+if [ ! -d "$DIR" ]; then
+    echo "Cloning from $REMOTE_URL..."
+    # Clone momentarily to get git metadata
+    git clone "$REMOTE_URL" "$DIR"
+    cd "$DIR" || exit 1
+else
+    echo "Directory exists. Configuring existing repo..."
+    cd "$DIR" || exit 1
+    # Add remote if missing
+    if ! git remote | grep -q "^origin$"; then
+        git remote add origin "$REMOTE_URL"
+    fi
+fi
+
+# 2. Fix Remote Shell Path (Critical for non-standard server paths)
+if [ -n "$REMOTE_SHELL_PATH" ]; then
+    echo "Configuring remote shell path to: $REMOTE_SHELL_PATH"
+    git config remote.origin.annex-shell "$REMOTE_SHELL_PATH"
+fi
+
+# 3. Initialize Local Annex
+if [ ! -d ".git/annex" ]; then
+    echo "Initializing Annex as '$DESC'..."
+    git annex init "$DESC"
+fi
+
+# 4. THE "IRON SHIELD" (Prevent Bloat)
+# This forces git-annex to intercept ALL adds, protecting git history.
+echo "Configuring Anti-Bloat Shield (annex.largefiles 'anything')..."
+git config annex.largefiles "anything"
+
+# 5. Storage Optimization (Thin/Unlocked)
+# 'thin' uses hard links for deduplication.
+# 'addunlocked' ensures files are writeable (not symlinks).
+# 'filter-process' ensures modern, fast git filtering.
+echo "Configuring Storage Optimization..."
+git config annex.thin true
+git config annex.addunlocked true
+git config filter.annex.clean "git-annex filter-process"
+git config filter.annex.smudge "git-annex filter-process"
+git config filter.annex.process "git-annex filter-process"
+
+# 6. Basic Hygiene
+if [ ! -f ".gitignore" ]; then
+    echo ".DS_Store" >> .gitignore
+    echo "Thumbs.db" >> .gitignore
+    git add .gitignore
+    git commit -m "Add gitignore" 2>/dev/null
+fi
+
+# 7. Set Group & Wanted Content
+echo "Setting repository group to '$GROUP'..."
+git annex group . "$GROUP"
+
+if [ "$GROUP" == "client" ]; then
+    # Client group: Assistant downloads files automatically.
+    git annex wanted . "standard"
+elif [ "$GROUP" == "manual" ]; then
+    # Manual group: Assistant downloads nothing automatically.
+    git annex wanted . "standard"
+fi
+
+# 8. Enable Assistant Autostart
+AUTOSTART_FILE="$HOME/.config/git-annex/autostart"
+if ! grep -Fxq "$DIR" "$AUTOSTART_FILE" 2>/dev/null; then
+    echo "Adding $DIR to git-annex autostart..."
+    mkdir -p "$(dirname "$AUTOSTART_FILE")"
+    echo "$DIR" >> "$AUTOSTART_FILE"
+fi
+
+echo "=== Client Setup Complete! ==="
+echo "  - Identity:   $DESC"
+echo "  - Group:      $GROUP"
+echo "  - Shield:     ACTIVE"
+echo ""
+echo "Next Steps:"
+echo "1. Run 'git annex assistant --autostart' to begin syncing."
+if [ "$GROUP" == "client" ]; then
+    echo "2. Watch the dashboard; files should start downloading."
+else
+    echo "2. Use 'git annex get <folder>' to download specific items."
+fi
