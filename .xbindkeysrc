@@ -1,0 +1,8 @@
+# xbindkeys configuration file
+#
+# This file is managed by the bootstrap script.
+# See .config/yadm/bootstrap for details.
+
+# Toggle Handy with F9
+"pkill -USR2 -n handy"
+  F9

@@ -160,3 +160,37 @@ if [[ "$VENDOR" == "Framework" ]]; then
 else
     echo ">> Not a Framework laptop. Skipping audio fix."
 fi
+
+# --- Global Keyboard Shortcut for Handy ---
+#
+# Configure a desktop-environment-agnostic keyboard shortcut using xbindkeys.
+# This works across GNOME, KDE, XFCE, and other desktop environments.
+echo ">> Configuring keyboard shortcuts with xbindkeys..."
+
+XBINDKEYS_RC="$HOME/.xbindkeysrc"
+
+# Check if xbindkeys is installed
+if command -v xbindkeys >/dev/null 2>&1; then
+    # The .xbindkeysrc file should already exist in the dotfiles repo
+    if [ -f "$XBINDKEYS_RC" ]; then
+        echo "   [OK] Configuration file exists: $XBINDKEYS_RC"
+        
+        # Restart xbindkeys to apply the configuration
+        # First, check if xbindkeys is already running
+        XBINDKEYS_PID=$(pgrep -x xbindkeys 2>/dev/null || echo "")
+        if [ -n "$XBINDKEYS_PID" ] && [ "$XBINDKEYS_PID" != "" ]; then
+            echo "   [..] Restarting xbindkeys to apply changes (PID: $XBINDKEYS_PID)..."
+            kill "$XBINDKEYS_PID" 2>/dev/null || true
+            sleep 0.5
+        fi
+        
+        # Start xbindkeys
+        xbindkeys
+        echo "   [OK] xbindkeys started with Handy shortcut (F9)."
+    else
+        echo "   [!!] Configuration file not found: $XBINDKEYS_RC"
+    fi
+else
+    echo "   [!!] xbindkeys is not installed. Keyboard shortcuts will not be configured."
+    echo "        Install xbindkeys with: sudo apt install xbindkeys"
+fi
