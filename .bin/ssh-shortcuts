@@ -36,8 +36,17 @@ while read -r line; do
                 continue
             fi
 
+            # Sanitize hostname to prevent directory traversal
+            # Remove any path separators and other dangerous characters
+            safe_host="${host//[\/\\]/_}"
+            
+            # Skip if hostname is empty after sanitization
+            if [ -z "$safe_host" ]; then
+                continue
+            fi
+
             # File extension is .url
-            FILE_PATH="$OUTPUT_DIR/${host}.url"
+            FILE_PATH="$OUTPUT_DIR/${safe_host}.url"
             
             # Simple Windows-style .url format
             cat <<EOF > "$FILE_PATH"
