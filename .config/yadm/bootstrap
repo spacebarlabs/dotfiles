@@ -160,3 +160,18 @@ if [[ "$VENDOR" == "Framework" ]]; then
 else
     echo ">> Not a Framework laptop. Skipping audio fix."
 fi
+
+# --- SSH Shortcuts for SFTP ---
+#
+# Create Windows-style .url shortcuts for all SSH hosts defined in ~/.ssh/config
+# This makes it easy to bookmark SFTP connections in file managers or other tools
+if [ -f "$HOME/.ssh/config" ]; then
+    if [ -x "$HOME/.bin/ssh-shortcuts" ]; then
+        echo ">> Creating SFTP shortcuts from SSH config..."
+        "$HOME/.bin/ssh-shortcuts"
+    else
+        echo ">> ssh-shortcuts script not found in ~/.bin/"
+    fi
+else
+    echo ">> No SSH config found at ~/.ssh/config, skipping SFTP shortcuts."
+fi
