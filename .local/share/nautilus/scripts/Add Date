@@ -1,0 +1,91 @@
+#!/bin/bash
+
+# Configuration
+LOG_DIR="$HOME/Magic/Log"
+LOG_FILE="$LOG_DIR/Add-Date-Manual.log"
+
+# Ensure log directory exists
+mkdir -p "$LOG_DIR"
+
+# Counters for notification
+COUNT=0
+
+# Logging Function
+log() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
+}
+
+# IFS (Internal Field Separator) handles filenames with spaces correctly
+IFS=$'\n'
+
+# Loop through every file selected in Nautilus
+for FILENAME in "$@"; do
+
+    # Nautilus executes the script in the current directory, so strictly speaking
+    # we don't need the full path, but it's safer for Exiftool.
+    FULL_PATH="$(pwd)/$FILENAME"
+
+    # Skip if it's not a file (e.g. if you selected a directory)
+    if [ ! -f "$FULL_PATH" ]; then continue; fi
+
+    # Regex for ISO8601 (YYYY-MM-DD)
+    ISO_REGEX="([0-9]{4})-([0-9]{2})-([0-9]{2})"
+
+    # ---------------------------------------------------------
+    # CONDITION 1: Check if date is already at the beginning
+    # ---------------------------------------------------------
+    if [[ "$FILENAME" =~ ^$ISO_REGEX\  ]]; then
+        continue
+    fi
+
+    DETECTED_DATE=""
+    CLEAN_NAME="$FILENAME"
+    SOURCE="None"
+
+    # ---------------------------------------------------------
+    # CONDITION 2: Check if date is elsewhere in the filename
+    # ---------------------------------------------------------
+    if [[ "$FILENAME" =~ $ISO_REGEX ]]; then
+        DETECTED_DATE="${BASH_REMATCH[0]}"
+        SOURCE="Filename"
+        # Remove date and clean up double spaces
+        CLEAN_NAME=$(echo "$FILENAME" | sed "s/$DETECTED_DATE//" | tr -s ' ' | sed 's/^[ -]*//')
+    fi
+
+    # ---------------------------------------------------------
+    # CONDITION 3: Look inside the file (Metadata)
+    # ---------------------------------------------------------
+    if [ -z "$DETECTED_DATE" ]; then
+        META_DATE=$(exiftool -T -d "%Y-%m-%d" -CreateDate -CreationDate -DateCreated -DateTimeOriginal "$FULL_PATH" 2>/dev/null | awk '{print $1}')
+        
+        if [[ "$META_DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+            DETECTED_DATE="$META_DATE"
+            SOURCE="Metadata"
+        fi
+    fi
+
+    # ---------------------------------------------------------
+    # CONDITION 4: Fallback to Today
+    # ---------------------------------------------------------
+    if [ -z "$DETECTED_DATE" ]; then
+        DETECTED_DATE=$(date +%Y-%m-%d)
+        SOURCE="Today (Fallback)"
+    fi
+
+    # ---------------------------------------------------------
+    # EXECUTE RENAME
+    # ---------------------------------------------------------
+    NEW_NAME="${DETECTED_DATE} ${CLEAN_NAME}"
+    
+    if [ "$FILENAME" != "$NEW_NAME" ]; then
+        mv -n "$FULL_PATH" "$(pwd)/$NEW_NAME"
+        log "Renamed: '$FILENAME' -> '$NEW_NAME' (Source: $SOURCE)"
+        ((COUNT++))
+    fi
+
+done
+
+# Send a desktop notification if files were changed
+if [ $COUNT -gt 0 ]; then
+    notify-send "Magic Date" "Renamed $COUNT file(s) with ISO dates." -i emblem-documents
+fi
