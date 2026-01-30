@@ -1,4 +1,14 @@
+#!/usr/bin/env bash
+#
 # Not very useful locally, since you already have a Trash action
 #
 # But for remote servers, this trashes it on the remote side, which can be nice
-trash-put "$*"
+
+# Check if trash-cli is installed to avoid silent failure
+if ! command -v trash-put &> /dev/null; then
+    notify-send "Error" "trash-cli is not installed."
+    exit 1
+fi
+
+# Use "$@" to handle multiple files and spaces correctly
+trash-put "$@"
