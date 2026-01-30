@@ -91,3 +91,32 @@ set secure
 
 set noerrorbells
 set novisualbell
+
+" ========
+" Org-Mode
+" ========
+
+" === Dynamic Agenda Discovery ===
+" 1. Initialize empty list
+let g:org_agenda_files = []
+
+" 2. Find all directories ending in .orgmode inside ~/git
+"    (Change '~/git' if you move your code folder)
+let s:org_repos = glob('~/git/*.orgmode', 0, 1)
+
+" 3. Loop through repos and add only the active GTD files
+for repo in s:org_repos
+  for filename in ['inbox.org', 'projects.org', 'tickler.org']
+    let s:path = repo . '/' . filename
+    " Only add the file if it actually exists
+    if filereadable(expand(s:path))
+      call add(g:org_agenda_files, s:path)
+    endif
+  endfor
+endfor
+
+" Cleanup temporary variables to keep global scope clean
+unlet s:org_repos s:path
+
+let g:org_todo_keywords = [['TODO', 'NEXT', 'WAITING', '|', 'DONE', 'CANCELLED']]
+let g:org_heading_shade_leading_stars = 1
