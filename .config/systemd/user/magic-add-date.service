@@ -1,0 +1,9 @@
+[Unit]
+Description=Magic Date Renaming Folder Monitor
+
+[Service]
+ExecStart=%h/.bin/magic-add-date
+Restart=always
+
+[Install]
+WantedBy=default.target
