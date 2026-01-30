@@ -1,0 +1,4 @@
+# Not very useful locally, since you already have a Trash action
+#
+# But for remote servers, this trashes it on the remote side, which can be nice
+trash-put "$*"
