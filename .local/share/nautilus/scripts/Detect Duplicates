@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# Define output filenames
+SUM_FILE="SHA1SUMS"
+DUP_FILE="DUPES"
+
+# Handle spaces in filenames properly by setting Internal Field Separator to newline
+IFS=$'\n'
+
+# 1. Loop through files selected in Nautilus
+for file_path in $NAUTILUS_SCRIPT_SELECTED_FILE_PATHS; do
+    # Ensure it is a file and not a directory
+    if [ -f "$file_path" ]; then
+        # Calculate SHA1 and append to SHA1SUMS
+        # sha1sum output format: "hash  filename"
+        sha1sum "$file_path" >> "$SUM_FILE"
+    fi
+done
+
+# 2. Detect Duplicates
+# We look at the updated SHA1SUMS file to find hashes that appear more than once.
+
+# Create a temporary header in DUPES to separate runs (Optional, but helpful for append mode)
+echo "--- Scan at $(date) ---" >> "$DUP_FILE"
+
+# Logic:
+# awk prints the hash (column 1).
+# sort orders them.
+# uniq -d only outputs hashes that appear more than once.
+duplicate_hashes=$(awk '{print $1}' "$SUM_FILE" | sort | uniq -d)
+
+if [ -n "$duplicate_hashes" ]; then
+    # Loop through the duplicate hashes found
+    for hash in $duplicate_hashes; do
+        # grep the hash from SHA1SUMS
+        # cut -c 43- removes the first 42 characters (40 char hash + 2 spaces) to leave just the filename
+        grep "$hash" "$SUM_FILE" | cut -c 43- >> "$DUP_FILE"
+    done
+    
+    # Notify user of success
+    notify-send "Duplicate Check Complete" "Duplicates found and written to $DUP_FILE"
+else
+    echo "No duplicates found." >> "$DUP_FILE"
+    notify-send "Duplicate Check Complete" "No duplicates detected."
+fi
