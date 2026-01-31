@@ -1,0 +1,52 @@
+#!/data/data/com.termux/files/usr/bin/sh
+
+# --- CONFIGURATION ---
+LOG_FILE="/data/data/com.termux/files/home/annex-manager.log"
+LOCK_FILE="/data/data/com.termux/files/home/annex-sync.lock"
+MAX_LOG_SIZE=1048576 # 1MB
+
+export HOME="/data/data/com.termux/files/home"
+export PATH="/data/data/com.termux/files/home/git-annex.linux:/data/data/com.termux/files/usr/bin:$PATH"
+
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"
+}
+
+# Rotation
+if [ -f "$LOG_FILE" ]; then
+    FILE_SIZE=$(stat -c%s "$LOG_FILE" 2>/dev/null || echo 0)
+    if [ "$FILE_SIZE" -gt "$MAX_LOG_SIZE" ]; then
+        mv "$LOG_FILE" "$LOG_FILE.old"
+        log "Log rotated."
+    fi
+fi
+
+# Lock
+if [ -e "$LOCK_FILE" ]; then
+    PID=$(cat "$LOCK_FILE")
+    if [ -d "/proc/$PID" ]; then
+        log "SKIP: Sync in progress (PID: $PID)"
+        exit 1
+    else
+        rm -f "$LOCK_FILE"
+    fi
+fi
+echo $$ > "$LOCK_FILE"
+trap 'rm -f "$LOCK_FILE"; exit' INT TERM EXIT
+
+# Sync
+log "--- Job Started ---"
+if [ -f ~/.config/git-annex/autostart ]; then
+    while IFS= read -r repo_path || [ -n "$repo_path" ]; do
+        [ -z "$repo_path" ] && continue
+        if cd "$repo_path"; then
+            log "Syncing: $repo_path"
+            [ -n "$(git status --porcelain)" ] && { git annex add . --quiet >> "$LOG_FILE" 2>&1; git add -u . >> "$LOG_FILE" 2>&1; }
+            timeout 300 git annex sync --content --quiet >> "$LOG_FILE" 2>&1
+            [ $? -eq 0 ] && log "Success" || log "Timeout/Error"
+        else
+            log "ERROR: Dir not found: $repo_path"
+        fi
+    done < ~/.config/git-annex/autostart
+fi
+log "--- Job Complete ---"
