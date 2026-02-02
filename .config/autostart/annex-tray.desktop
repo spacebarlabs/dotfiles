@@ -2,8 +2,7 @@
 Type=Application
 Name=Annex Tray
 Comment=Monitor Git Annex repositories
-# Use sh -c to expand $HOME dynamically at runtime
-Exec=sh -c "$HOME/.bin/annex-tray"
+Exec=annex-tray
 Icon=folder-remote-symbolic
 Terminal=false
 X-GNOME-Autostart-enabled=true
