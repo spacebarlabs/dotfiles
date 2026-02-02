@@ -1,0 +1,29 @@
+#!/bin/bash
+# Extract the URL
+url=$(grep -m 1 "^URL=" "$1" | cut -d= -f2- | tr -d '\r')
+
+if [ -z "$url" ]; then
+    zenity --error --text="No URL found in file."
+    exit 1
+fi
+
+protocol=${url,,}
+
+# Logic:
+# 1. If it is SFTP/SMB, try to open with Nautilus.
+#    We removed "--new-window" to try and respect user tab preferences.
+if [[ "$protocol" == sftp://* || "$protocol" == smb://* || "$protocol" == ftp://* ]]; then
+    
+    # Try to see if it is already mounted. 
+    # If mounted, xdg-open SOMETIMES respects tabs better than nautilus direct call.
+    if gio info "$url" &> /dev/null; then
+        xdg-open "$url"
+    else
+        # Not mounted? Must use nautilus to trigger the password prompt.
+        nautilus "$url"
+    fi
+
+else
+    # Web links
+    xdg-open "$url"
+fi
