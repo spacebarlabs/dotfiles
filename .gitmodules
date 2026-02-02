@@ -164,3 +164,7 @@
 	path = .vim/pack/plugins/start/vim-speeddating
 	url = https://github.com/tpope/vim-speeddating.git
 	shallow = true
+[submodule ".sbl-submodules/dracula-termux"]
+	path = .sbl-submodules/dracula-termux
+	url = https://github.com/dracula/termux.git
+	shallow = true
