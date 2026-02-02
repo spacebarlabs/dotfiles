@@ -116,7 +116,10 @@ for repo in s:org_repos
 endfor
 
 " Cleanup temporary variables to keep global scope clean
-unlet s:org_repos s:path
+unlet s:org_repos
+if exists('s:path')
+  unlet s:path
+endif
 
 let g:org_todo_keywords = [['TODO', 'NEXT', 'WAITING', '|', 'DONE', 'CANCELLED']]
 let g:org_heading_shade_leading_stars = 1
