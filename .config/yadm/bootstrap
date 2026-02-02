@@ -143,9 +143,9 @@ if command -v gsettings >/dev/null 2>&1; then
         fi
         
         # Set the keybinding properties
-        gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$CUSTOM_KB_PATH name "Toggle Handy"
-        gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$CUSTOM_KB_PATH command "pkill -USR2 -n handy"
-        gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$CUSTOM_KB_PATH binding "F9"
+        gsettings set "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$CUSTOM_KB_PATH" name "Toggle Handy"
+        gsettings set "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$CUSTOM_KB_PATH" command "pkill -USR2 -n handy"
+        gsettings set "org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$CUSTOM_KB_PATH" binding "F9"
         
         echo "✅ Handy keyboard shortcut (F9) configured."
     else
