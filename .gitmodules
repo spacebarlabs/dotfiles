@@ -159,6 +159,8 @@
 [submodule ".vim/pack/plugins/start/vim-orgmode"]
 	path = .vim/pack/plugins/start/vim-orgmode
 	url = https://github.com/jceb/vim-orgmode.git
+	shallow = true
 [submodule ".vim/pack/plugins/start/vim-speeddating"]
 	path = .vim/pack/plugins/start/vim-speeddating
 	url = https://github.com/tpope/vim-speeddating.git
+	shallow = true
