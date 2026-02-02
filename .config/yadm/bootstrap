@@ -54,8 +54,12 @@ if command -v gsettings >/dev/null && command -v dconf >/dev/null; then
     DRACULA_DIR="$HOME/.sbl-submodules/dracula-gnome-terminal"
     if [ -f "$DRACULA_DIR/install.sh" ]; then
         echo "Running Dracula install.sh script..."
-        bash "$DRACULA_DIR/install.sh" --scheme=Dracula --profile="$PROFILE_UUID" --skip-dircolors
-        echo "✅ Dracula theme applied via install.sh."
+        if bash "$DRACULA_DIR/install.sh" --scheme=Dracula --profile="$PROFILE_UUID" --skip-dircolors; then
+            echo "✅ Dracula theme applied via install.sh."
+        else
+            echo "⚠️  Failed to apply Dracula theme. The install.sh script exited with an error."
+            echo "   This may happen if the profile does not exist or if there are permission issues."
+        fi
     else
         echo "⚠️  Dracula install.sh not found. Skipping theme installation."
     fi
