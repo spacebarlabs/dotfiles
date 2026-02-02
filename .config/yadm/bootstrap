@@ -19,7 +19,7 @@ if [ -f "$SUBDIR_CONFIG" ]; then
     FULL_SOURCE="$HOME/$SOURCE_PATH"
     FULL_TARGET="$HOME/$TARGET_PATH"
 
-    if [ -d "$FULL_SOURCE" ]; then
+    if [ -d "$FULL_SOURCE" ] || [ -f "$FULL_SOURCE" ]; then
       # Ensure the parent directory of the target exists
       mkdir -p "$(dirname "$FULL_TARGET")"
 
