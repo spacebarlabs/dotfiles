@@ -14,8 +14,9 @@ nmap <Leader>l iLorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
 nmap <Leader>r ggIRefactor: <esc>
 nmap <Leader>f i#{__FILE__}:#{__LINE__} <esc>
 nmap <Leader>x 0f[lrx
-map <Leader>i YPIputs "<esc>A: #{(<esc>JxA)}"<esc>hi.inspect<esc>0j
 vmap <Leader>z :call I18nTranslateString()<CR>
+
+autocmd FileType ruby map <buffer> <Leader>i YPIputs "<esc>A: #{(<esc>JxA)}"<esc>hi.inspect<esc>0j
 
 " Quote switching
 nmap <Leader>' :.s/"/'/g<CR>:nohlsearch<CR>
