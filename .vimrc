@@ -74,6 +74,7 @@ endif
 " MAPPINGS
 " =============================================================================
 let mapleader=","
+let maplocalleader = ","
 
 " GitGutter
 set signcolumn=yes
