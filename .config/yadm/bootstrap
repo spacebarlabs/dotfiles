@@ -119,6 +119,40 @@ if command -v gsettings >/dev/null 2>&1; then
     fi
 fi
 
+# Configure global keyboard shortcut for Handy
+if command -v gsettings >/dev/null 2>&1; then
+    # Check if the GNOME media-keys schema is available
+    if gsettings list-schemas | grep -q "org.gnome.settings-daemon.plugins.media-keys"; then
+        echo "Configuring Handy keyboard shortcut..."
+        
+        # Define the custom keybinding path
+        CUSTOM_KB_PATH="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/handy/"
+        
+        # Get the current list of custom keybindings
+        CURRENT_BINDINGS=$(gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings)
+        
+        # Add our custom keybinding path if it's not already there
+        if [[ "$CURRENT_BINDINGS" != *"$CUSTOM_KB_PATH"* ]]; then
+            # Remove the closing bracket and append our path
+            if [[ "$CURRENT_BINDINGS" == "@as []" ]] || [[ "$CURRENT_BINDINGS" == "[]" ]]; then
+                NEW_BINDINGS="['$CUSTOM_KB_PATH']"
+            else
+                NEW_BINDINGS="${CURRENT_BINDINGS%]}, '$CUSTOM_KB_PATH']"
+            fi
+            gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "$NEW_BINDINGS"
+        fi
+        
+        # Set the keybinding properties
+        gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$CUSTOM_KB_PATH name "Toggle Handy"
+        gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$CUSTOM_KB_PATH command "pkill -USR2 -n handy"
+        gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$CUSTOM_KB_PATH binding "F9"
+        
+        echo "✅ Handy keyboard shortcut (F9) configured."
+    else
+        echo "GNOME media-keys not available. Skipping Handy keyboard shortcut."
+    fi
+fi
+
 # Warn if mise is not installed
 if ! command -v mise &> /dev/null; then
     echo "⚠️  WARNING: mise is not installed. Tool version management will not be available."
