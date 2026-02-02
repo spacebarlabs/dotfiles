@@ -106,7 +106,7 @@ git-cd() {
   fi
 }
 
-PATH=$HOME/.bin:$PATH:$HOME/bin # Make personal scripts available
+PATH=$HOME/.local/bin:$PATH:$HOME/bin # Make personal scripts available
 
 export CDPATH="$CDPATH:$HOME/git"
 
