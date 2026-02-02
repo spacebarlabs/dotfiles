@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Open Shortcut
+Exec=open-dot-url %f
+Icon=emblem-symbolic-link
+MimeType=application/x-mswinurl;
+NoDisplay=true
