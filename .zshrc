@@ -129,7 +129,9 @@ if command -v systemctl &> /dev/null; then
         echo -e "\033[0;31m[WARNING] Git background maintenance is failing!\033[0m"
         echo "Run this to debug:"
         echo "  journalctl --user -u git-maintenance@hourly.service -n 20"
-        echo "Or restart maintenance with:"
+        echo "Check for common issues:"
+        echo "  git-maintenance-check"
+        echo "Restart maintenance with:"
         echo "  git-maintenance-restart"
         echo ""
     fi

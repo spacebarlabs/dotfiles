@@ -1,0 +1,40 @@
+#!/bin/bash
+
+CONFIG_FILE="$HOME/.gitconfig.local"
+
+# 1. Check if the config file itself exists
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "Error: Configuration file $CONFIG_FILE not found."
+    exit 1
+fi
+
+echo "Checking maintenance repos in $CONFIG_FILE..."
+echo "---"
+
+# 2. Extract all maintenance.repo entries and loop through them
+# We process command substitution input to avoid subshell variable scope issues
+found_all=true
+
+while IFS= read -r repo_path; do
+    # Skip empty lines if any
+    [ -z "$repo_path" ] && continue
+
+    # 3. Check if the directory exists
+    if [ -d "$repo_path" ]; then
+        echo "✅ FOUND:   $repo_path"
+    else
+        echo "❌ MISSING: $repo_path"
+        found_all=false
+    fi
+done < <(git config -f "$CONFIG_FILE" --get-all maintenance.repo)
+
+echo "---"
+
+# 4. Exit with status code (0 = success, 1 = failure)
+if [ "$found_all" = true ]; then
+    echo "All repositories exist."
+    exit 0
+else
+    echo "Some repositories are missing."
+    exit 1
+fi
