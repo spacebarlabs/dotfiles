@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+require 'uri'
+require 'cgi'
+
+url = ARGV[0] || STDIN.read.strip
+
+begin
+  uri = URI.parse(url)
+
+  puts "Scheme:   #{uri.scheme}"
+  puts "User:     #{CGI.unescape(uri.user)}" if uri.user
+  puts "Password: #{CGI.unescape(uri.password)}" if uri.password
+  puts "Host:     #{uri.host}"
+  puts "Port:     #{uri.port}"
+
+  if uri.path && uri.path.length > 1
+    db_name = uri.path[1..]
+    puts "Database: #{CGI.unescape(db_name)}"
+  else
+    puts "Database: (none)"
+  end
+
+rescue URI::InvalidURIError
+  puts "Error: The provided string is not a valid URI."
+end
