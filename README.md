@@ -23,6 +23,15 @@ yadm clone --recurse-submodules https://github.com/spacebarlabs/dotfiles
 yadm bootstrap
 ```
 
+### Package Dependencies
+
+These dotfiles work best with the Space Bar Labs CLI utilities packages:
+
+- **Full systems** (desktop/server): Install `sbl-cli-utils` for the complete set of tools
+- **Resource-constrained systems** (Devuan/Maemo Leste): Install `sbl-cli-utils-core` for essential utilities only
+
+See the [packages](packages/) directory for detailed package definitions and what's included in each.
+
 ## Updating
 
 ```bash

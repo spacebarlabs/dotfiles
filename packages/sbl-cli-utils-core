@@ -1,0 +1,23 @@
+Section: misc
+Priority: optional
+Standards-Version: 3.9.2
+
+Package: sbl-cli-utils-core
+Maintainer: Benjamin Oakes <apt@spacebarlabs.com>
+Depends:
+  bash,
+  curl,
+  git,
+  gnupg2,
+  jq,
+  less,
+  man-db,
+  openssh-client,
+  sbl-apt-repos,
+  tmux,
+  tree,
+  wget,
+  zsh,
+Description: Space Bar Labs CLI Utilities (Core)
+  Essential console-based system tools for Devuan/Maemo Leste.
+  This is a minimal core package that works on resource-constrained systems.

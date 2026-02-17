@@ -34,6 +34,8 @@ jobs:
           sudo apt-get update
           
           # Install sbl-cli-utils which includes mise and other utilities
+          # Note: sbl-cli-utils depends on sbl-cli-utils-core (minimal package for Devuan/Maemo Leste)
+          # For resource-constrained systems, install sbl-cli-utils-core instead
           sudo apt-get install -y sbl-cli-utils bash zsh vim tmux git ruby
 
       - name: Validate Bash configuration

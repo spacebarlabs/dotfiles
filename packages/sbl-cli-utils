@@ -1,0 +1,31 @@
+Section: misc
+Priority: optional
+Standards-Version: 3.9.2
+
+Package: sbl-cli-utils
+Maintainer: Benjamin Oakes <apt@spacebarlabs.com>
+Depends:
+  btop,
+  entr,
+  fd-find,
+  git-annex,
+  git-crypt,
+  gron,
+  inotify-tools,
+  libimage-exiftool-perl,
+  lynx,
+  micro,
+  mise,
+  ncal,
+  neovim,
+  pandoc,
+  rlwrap,
+  ruby,
+  sbl-cli-utils-core,
+  trash-cli,
+  unar,
+  w3m,
+  yadm,
+Description: Space Bar Labs CLI Utilities
+  Console-based system tools, editors, and web browsers.
+  This package depends on sbl-cli-utils-core and adds additional utilities.
