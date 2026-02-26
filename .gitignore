@@ -29,3 +29,7 @@ __pycache__/
 # SSH
 .ssh/config
 .ssh/id_*
+
+# My habits
+apply.sh
+apply.bash
