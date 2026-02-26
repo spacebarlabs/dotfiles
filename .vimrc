@@ -124,3 +124,6 @@ endif
 
 let g:org_todo_keywords = [['TODO', 'NEXT', 'WAITING', '|', 'DONE', 'CANCELLED']]
 let g:org_heading_shade_leading_stars = 1
+
+" wikilink: Window split on footer and sidebar detection can be disabled by writing this
+let wikilinkAutosplit="off"
