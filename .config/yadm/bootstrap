@@ -189,6 +189,97 @@ else
     echo ">> Not a Framework laptop. Skipping audio fix."
 fi
 
+# ... (Framework Audio Buzz Fix above) ...
+
+# --- GitHub SSH Key Sync ---
+#
+# Fetches SSH keys from GitHub and safely updates authorized_keys.
+# Prompts for GitHub username on first run and caches it.
+
+echo ">> Synchronizing SSH keys from GitHub..."
+
+GITHUB_USERNAME_FILE="$HOME/.github_username"
+GITHUB_USERNAME=""
+
+# 1. Load or prompt for the GitHub username
+if [ -f "$GITHUB_USERNAME_FILE" ]; then
+    # Read the file and strip any accidental whitespace/newlines
+    GITHUB_USERNAME=$(cat "$GITHUB_USERNAME_FILE" | xargs)
+else
+    LOCAL_USER=$(whoami)
+    
+    # Don't offer 'root' as a default GitHub username
+    if [ "$LOCAL_USER" == "root" ]; then
+        DEFAULT_USER=""
+        PROMPT_TEXT="Enter GitHub username: "
+    else
+        DEFAULT_USER="$LOCAL_USER"
+        PROMPT_TEXT="Enter GitHub username [$DEFAULT_USER]: "
+    fi
+    
+    # Keep prompting until we get a non-empty string
+    while [ -z "$GITHUB_USERNAME" ]; do
+        read -p "   $PROMPT_TEXT" INPUT_USER
+        # Use input if provided, otherwise fallback to default
+        GITHUB_USERNAME="${INPUT_USER:-$DEFAULT_USER}"
+        
+        if [ -z "$GITHUB_USERNAME" ]; then
+            echo "   [ERR] GitHub username cannot be empty."
+        fi
+    done
+    
+    # Save it so we don't have to prompt next time
+    echo "$GITHUB_USERNAME" > "$GITHUB_USERNAME_FILE"
+    echo "   [OK] Saved GitHub username to $GITHUB_USERNAME_FILE."
+fi
+
+echo "   [..] Fetching keys for GitHub user: $GITHUB_USERNAME"
+
+AUTH_DIR="$HOME/.ssh"
+AUTH_FILE="$AUTH_DIR/authorized_keys"
+
+# Ensure the .ssh directory exists with strict permissions
+mkdir -p "$AUTH_DIR"
+chmod 700 "$AUTH_DIR"
+
+# 2. Try to fetch the keys safely into a variable
+if fetched_keys=$(curl -s -f --connect-timeout 5 -m 10 "https://github.com/${GITHUB_USERNAME}.keys"); then
+    
+    # Count how many valid SSH keys were returned (matches ssh-rsa, ssh-ed25519, ecdsa-, sk-)
+    key_count=$(echo "$fetched_keys" | grep -E -c "^(ssh-|ecdsa-|sk-)")
+    
+    # 3. Sanity check: ensure there are at least 2 keys
+    if [ "$key_count" -ge 2 ]; then
+        
+        # 4. Check if the file already matches what we fetched to avoid unnecessary updates
+        if [ -f "$AUTH_FILE" ] && echo "$fetched_keys" | cmp -s - "$AUTH_FILE"; then
+            echo "   [OK] SSH keys are already up to date ($key_count keys found)."
+        else
+            echo "   [..] Changes detected! Updating $AUTH_FILE with $key_count keys..."
+            
+            # Create a backup of the old keys just in case
+            [ -f "$AUTH_FILE" ] && cp "$AUTH_FILE" "${AUTH_FILE}.bak"
+            
+            # Write the new keys and lock down permissions
+            echo "$fetched_keys" > "$AUTH_FILE"
+            chmod 600 "$AUTH_FILE"
+            
+            echo "   [OK] SSH keys updated successfully."
+            echo ""
+            echo "=== CURRENT AUTHORIZED KEYS ==="
+            cat "$AUTH_FILE"
+            echo "==============================="
+            echo ""
+            echo "⚠️  CRITICAL: Your SSH keys were just modified."
+            echo "Please open a NEW terminal window and verify you can SSH into this machine before closing your current session!"
+        fi
+    else
+        echo "   [ERR] Validation failed. Only found $key_count keys (minimum 2 required). Aborting update to protect access."
+    fi
+else
+    echo "   [ERR] Failed to fetch keys from GitHub. Please check your internet connection or username."
+fi
+
 # --- SSH Shortcuts for SFTP ---
 #
 # Create Windows-style .url shortcuts for all SSH hosts defined in ~/.ssh/config
