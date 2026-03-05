@@ -201,7 +201,7 @@ echo ">> Synchronizing SSH keys from GitHub..."
 GITHUB_USERNAME_FILE="$HOME/.github_username"
 GITHUB_USERNAME=""
 
-# 1. Load or prompt for the GitHub username
+# 1. Load or determine the GitHub username
 if [ -f "$GITHUB_USERNAME_FILE" ]; then
     # Read the file and strip any accidental whitespace/newlines
     GITHUB_USERNAME=$(cat "$GITHUB_USERNAME_FILE" | xargs)
@@ -209,26 +209,24 @@ else
     LOCAL_USER=$(whoami)
 
     # Don't offer 'root' as a default GitHub username
-    if [ "$LOCAL_USER" == "root" ]; then
-        DEFAULT_USER=""
-        PROMPT_TEXT="Enter GitHub username: "
+    if [ "$LOCAL_USER" != "root" ]; then
+        # Automatically use the local user (no prompting!)
+        GITHUB_USERNAME="$LOCAL_USER"
+        echo "   [OK] Automatically using system user '$GITHUB_USERNAME' for GitHub."
     else
-        DEFAULT_USER="$LOCAL_USER"
-        PROMPT_TEXT="Enter GitHub username [$DEFAULT_USER]: "
+        # We are root, so we MUST prompt
+        echo "   [WARN] Running as root. Cannot infer GitHub username."
+        while [ -z "$GITHUB_USERNAME" ]; do
+            # Using read -e to safely handle pastes and backspaces
+            read -e -p "   Enter GitHub username: " GITHUB_USERNAME
+
+            if [ -z "$GITHUB_USERNAME" ]; then
+                echo "   [ERR] GitHub username cannot be empty."
+            fi
+        done
     fi
 
-    # Keep prompting until we get a non-empty string
-    while [ -z "$GITHUB_USERNAME" ]; do
-        read -p "   $PROMPT_TEXT" INPUT_USER
-        # Use input if provided, otherwise fallback to default
-        GITHUB_USERNAME="${INPUT_USER:-$DEFAULT_USER}"
-
-        if [ -z "$GITHUB_USERNAME" ]; then
-            echo "   [ERR] GitHub username cannot be empty."
-        fi
-    done
-
-    # Save it so we don't have to prompt next time
+    # Save it so we don't have to check/prompt next time
     echo "$GITHUB_USERNAME" > "$GITHUB_USERNAME_FILE"
     echo "   [OK] Saved GitHub username to $GITHUB_USERNAME_FILE."
 fi
