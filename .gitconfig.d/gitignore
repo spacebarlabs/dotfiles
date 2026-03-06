@@ -18,3 +18,42 @@ tags
 ## RUBYMINE
 .idea/**/*
 .idea/
+
+# Standard ignores
+.bundle
+*.sw[nop]
+
+# Python
+__pycache__/
+*.pyc
+
+# Shell history files
+.bash_history
+.zsh_history
+
+# Logs
+.log/
+
+# LibreOffice
+.~lock.*#
+
+# Vim
+.vim/.netrwhist
+.vim/spell
+.vim/backup
+.vim/plugged
+.vim/local
+## LOCAL VIM PLUGINS
+.vim/pack/local/
+
+# Git Config
+.gitconfig.d/user
+.gitconfig.local
+
+# SSH
+.ssh/config
+.ssh/id_*
+
+# My habits for non-agent LLMs
+apply.sh
+apply.bash
