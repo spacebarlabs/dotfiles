@@ -168,3 +168,6 @@
 	path = .sbl-submodules/dracula-termux
 	url = https://github.com/dracula/termux.git
 	shallow = true
+[submodule "git/dotfiles/.local/share/gnome-shell/extensions/simple-timer-extension"]
+	path = git/dotfiles/.local/share/gnome-shell/extensions/simple-timer-extension
+	url = https://github.com/MajortomVR/simple-timer-extension.git
