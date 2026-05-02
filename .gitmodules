@@ -124,7 +124,7 @@
 	path = .local/share/gnome-shell/extensions/clipboard-indicator@tudmotu.com
 	url = https://github.com/Tudmotu/gnome-shell-extension-clipboard-indicator.git
 	shallow = true
-[submodule "/home/benjaminoakes/.vim/pack/plugins/start/vim-logseq"]
+[submodule ".vim/pack/plugins/start/vim-logseq"]
 	path = .vim/pack/plugins/start/vim-logseq
 	url = https://github.com/spacebarlabs/vim-logseq.git
 	shallow = true
@@ -164,6 +164,7 @@
 	path = .sbl-submodules/dracula-termux
 	url = https://github.com/dracula/termux.git
 	shallow = true
-[submodule "git/dotfiles/.local/share/gnome-shell/extensions/simple-timer-extension"]
-	path = git/dotfiles/.local/share/gnome-shell/extensions/simple-timer-extension
+[submodule ".local/share/gnome-shell/extensions/simple-timer-extension"]
+	path = .local/share/gnome-shell/extensions/simple-timer-extension
 	url = https://github.com/MajortomVR/simple-timer-extension.git
+	shallow = true
