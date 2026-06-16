@@ -171,3 +171,6 @@
 [submodule ".vim/pack/plugins/start/codecompanion.nvim"]
 	path = .vim/pack/plugins/start/codecompanion.nvim
 	url = https://github.com/olimorris/codecompanion.nvim.git
+[submodule "pack/plugins/start/plenary.nvim"]
+	path = pack/plugins/start/plenary.nvim
+	url = https://github.com/nvim-lua/plenary.nvim.git
