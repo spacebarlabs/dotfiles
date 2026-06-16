@@ -168,3 +168,6 @@
 	path = .local/share/gnome-shell/extensions/simple-timer-extension
 	url = https://github.com/MajortomVR/simple-timer-extension.git
 	shallow = true
+[submodule ".vim/pack/plugins/start/codecompanion.nvim"]
+	path = .vim/pack/plugins/start/codecompanion.nvim
+	url = https://github.com/olimorris/codecompanion.nvim.git
