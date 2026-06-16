@@ -123,6 +123,10 @@ if command -v mise &> /dev/null; then
   eval "$(mise activate zsh)"
 fi
 
+if [ -d ~/git/orgmode-indicator ]; then
+  cd ~/git/orgmode-indicator; python3 org_cli.py; cd -
+fi
+
 # Check if Git Maintenance failed recently (only if systemd is available)
 if command -v systemctl &> /dev/null; then
     if systemctl --user --quiet is-failed git-maintenance@hourly.service; then
