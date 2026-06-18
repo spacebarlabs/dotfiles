@@ -1,5 +1,7 @@
 # dotfiles
 
+[![Sponsored by CloudBreak](https://cloudbreak.app/promotional_banner.svg?source=spacebarlabs_dotfiles_readme)](https://cloudbreak.app/promotional_banner/visit?source=spacebarlabs_dotfiles_readme)
+
 The dotfiles we use. They use the [YADM](https://yadm.io/) format.
 
 ## Philosophy
