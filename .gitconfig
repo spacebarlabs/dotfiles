@@ -47,7 +47,8 @@
 	defaultBranch = main
 [include]
 	# load local changes last so personal settings can override shared settings
-	path = ~/.gitconfig.local # use this for machine-local settings
+	# Use this for machine-local settings
+	path = ~/.gitconfig.local
 [rebase]
 	autoStash = true
 [rerere]

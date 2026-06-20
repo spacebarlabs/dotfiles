@@ -200,7 +200,7 @@ fi
 # > Before looking at the central Libravatar database, the client library checks the DNS records of the email's domain (example.com). It specifically searches for SRV (Service) records indicating that the domain hosts its own avatar service.
 echo ">> Synchronizing system profile picture with Libravatar..."
 
-EMAIL=$(git config --global user.email)
+EMAIL=$(git config --global --includes user.email)
 
 if [ -z "$EMAIL" ]; then
     echo "   [WARN] Global Git email is not configured. Skipping Libravatar sync."
@@ -208,8 +208,11 @@ else
     echo "   [..] Fetching Libravatar image for: $EMAIL"
 
     HASH=$(echo -n "$EMAIL" | tr '[:upper:]' '[:lower:]' | sha256sum | awk '{print $1}')
+    LIBRAVATAR_URL="https://seccdn.libravatar.org/avatar/$HASH?s=256"
 
-    if curl -s -f --connect-timeout 5 "https://seccdn.libravatar.org/avatar/$HASH?s=256" -o "$HOME/.face"; then
+    echo "   [..] Downloading $LIBRAVATAR_URL"
+
+    if curl -s -f -L --connect-timeout 5 "$LIBRAVATAR_URL" -o "$HOME/.face"; then
         echo "   [OK] Libravatar image cached successfully to ~/.face"
 
         if busctl call org.freedesktop.Accounts /org/freedesktop/Accounts/User$(id -u) org.freedesktop.Accounts.User SetIconFile s "$HOME/.face" >/dev/null 2>&1; then
