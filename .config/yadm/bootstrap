@@ -189,7 +189,39 @@ else
     echo ">> Not a Framework laptop. Skipping audio fix."
 fi
 
-# ... (Framework Audio Buzz Fix above) ...
+
+# --- Libravatar Profile Picture Sync ---
+#
+# Automatically grabs the configured global Git email, hashes it, downloads
+# the matching Libravatar image to ~/.face, and maps it to the GNOME desktop profile.
+#
+# TODO: Switch to self-hosted
+#
+# > Before looking at the central Libravatar database, the client library checks the DNS records of the email's domain (example.com). It specifically searches for SRV (Service) records indicating that the domain hosts its own avatar service.
+echo ">> Synchronizing system profile picture with Libravatar..."
+
+EMAIL=$(git config --global user.email)
+
+if [ -z "$EMAIL" ]; then
+    echo "   [WARN] Global Git email is not configured. Skipping Libravatar sync."
+else
+    echo "   [..] Fetching Libravatar image for: $EMAIL"
+
+    HASH=$(echo -n "$EMAIL" | tr '[:upper:]' '[:lower:]' | sha256sum | awk '{print $1}')
+
+    if curl -s -f --connect-timeout 5 "https://seccdn.libravatar.org/avatar/$HASH?s=256" -o "$HOME/.face"; then
+        echo "   [OK] Libravatar image cached successfully to ~/.face"
+
+        if busctl call org.freedesktop.Accounts /org/freedesktop/Accounts/User$(id -u) org.freedesktop.Accounts.User SetIconFile s "$HOME/.face" >/dev/null 2>&1; then
+            echo "   [OK] GNOME user profile picture updated successfully."
+        else
+            echo "   [WARN] Image updated, but failed to alert AccountsService via busctl."
+        fi
+    else
+        echo "   [ERR] Failed to download Libravatar image. Check your internet connection."
+    fi
+fi
+
 
 # --- GitHub SSH Key Sync ---
 #
