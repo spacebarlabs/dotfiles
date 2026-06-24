@@ -1,3 +1,5 @@
+#vi: ft=zsh
+
 mise_prompt_info() {
   # Check if mise exists
   if ! command -v mise &> /dev/null; then return; fi
