@@ -6,17 +6,27 @@ mise_prompt_info() {
 
   local tools
   # 1. Run mise ls
-  # 2. Awk Filters:
-  #    - $3 != "": Must have a source file (ignore tools that are just installed but not active)
-  #    - $3 !~ /config\.toml$/: Ignore the global mise config file
-  #    - $3 != "~/.tool-versions": Ignore the global .tool-versions in home (optional, remove if you want to see those)
+  # 2. Awk Filters: Track ruby separately and count the rest
   tools=$(mise ls --no-header 2>/dev/null | awk '
     $3 != "" && \
     $3 !~ /config\.toml$/ && \
     $3 != "~/.tool-versions" {
-      print $1 ":" $2
+      if ($1 == "ruby") {
+        ruby_ver = "ruby:" $2
+      } else {
+        other_count++
+      }
     }
-  ' | paste -sd ' ' -)
+    END {
+      if (ruby_ver && other_count) {
+        print ruby_ver " (mise+" other_count ")"
+      } else if (ruby_ver) {
+        print ruby_ver
+      } else if (other_count) {
+        print "(mise+" other_count ")"
+      }
+    }
+  ')
 
   # Only print if tools were found
   if [ -n "$tools" ]; then
@@ -41,7 +51,7 @@ yadm_prompt_info() {
   # Get the current branch from yadm repository
   local branch
   branch=$(git --git-dir="$yadm_repo" --work-tree="$HOME" symbolic-ref --short HEAD 2>/dev/null)
-  
+
   # Only print if branch was found
   if [[ -n "$branch" ]]; then
     echo "%{$fg[cyan]%}‹yadm:$branch›"
