@@ -1,4 +1,4 @@
-export EDITOR=vim
+export EDITOR=nvim
 export ZSH=$HOME/.oh-my-zsh
 export ZSH_CUSTOM=$HOME/.oh-my-zsh-custom
 export ZSH_THEME="spacebarlabs"
@@ -58,7 +58,8 @@ bindkey -M viins '^[^M' autosuggest-execute
 alias git='nocorrect noglob git'
 alias rake='noglob rake'
 
-alias vi='vim'
+alias vim='nvim'
+alias vi='nvim'
 alias gti=git
 alias tig=git
 alias igt=git

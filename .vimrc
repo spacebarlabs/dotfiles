@@ -129,3 +129,119 @@ let g:org_log_repeat = 'time'
 
 " wikilink: Window split on footer and sidebar detection can be disabled by writing this
 let wikilinkAutosplit="off"
+
+if has('nvim-0.11')
+packadd codecompanion.nvim
+
+lua << EOF
+require("codecompanion").setup({
+  log_level = "DEBUG",
+  strategies = {
+    chat = { adapter = "ollama" },
+    inline = { adapter = "ollama" },
+  },
+  adapters = {
+    ollama = function()
+      return require("codecompanion.adapters").extend("ollama", {
+        env = { url = "http://192.168.8.228:11434" },
+        schema = {
+          -- model = { default = "phi4-reasoning:latest" },
+          model = { default = "qwen2.5-coder:1.5b" },
+          temperature = { default = 0.0 },
+        },
+      })
+    end,
+  },
+})
+
+-- =============================================================================
+-- Resilient Watchdog Spinner Controls
+-- =============================================================================
+local feedback_group = vim.api.nvim_create_augroup("CodeCompanionFeedback", { clear = true })
+spinner_timer = nil  -- Kept global so emergency macros can target it
+local spinner_frames = { "⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏" }
+local spinner_idx = 1
+local ticks = 0
+
+local function cleanup_spinner()
+  if spinner_timer then
+    spinner_timer:stop()
+    spinner_timer:close()
+    spinner_timer = nil
+  end
+  ticks = 0
+end
+
+vim.api.nvim_create_autocmd("User", {
+  pattern = "CodeCompanionRequestStarted",
+  group = feedback_group,
+  callback = function()
+    cleanup_spinner() -- Force kill any pre-existing loops before starting
+    spinner_timer = (vim.uv or vim.loop).new_timer()
+    spinner_timer:start(0, 100, vim.schedule_wrap(function()
+      ticks = ticks + 1
+      -- SAFETY WATCHDOG: If it loops for more than 40 seconds (400 ticks), self-terminate
+      if ticks > 3000 then
+        cleanup_spinner()
+        vim.api.nvim_echo({ { "⚠️  Ollama timeout or request dropped.", "ErrorMsg" } }, false, {})
+        return
+      end
+
+      spinner_idx = (spinner_idx % #spinner_frames) + 1
+      vim.api.nvim_echo({
+        { "⚙️  Ollama is computing... ", "WarningMsg" },
+        { spinner_frames[spinner_idx], "Identifier" },
+        -- { " (phi4-reasoning:latest)", "Comment" }
+        { " (qwen2.5-coder:1.5b)", "Comment" }
+      }, false, {})
+    end))
+  end,
+})
+
+vim.api.nvim_create_autocmd("User", {
+  pattern = "CodeCompanionRequestFinished",
+  group = feedback_group,
+  callback = function()
+    cleanup_spinner()
+    vim.api.nvim_echo({ { "✅ AI Response Delivered!", "String" } }, false, {})
+  end,
+})
+
+-- =============================================================================
+-- Custom Code Transformer Core with Absolute Line Mapping
+-- =============================================================================
+vim.api.nvim_create_user_command('HerbFixContext', function()
+  cleanup_spinner() -- Reset screen state cleanly on invocation
+
+  local current_line = vim.api.nvim_win_get_cursor(0)[1]
+  local start_line = math.max(1, current_line - 5)
+  local end_line = current_line + 10
+
+  local qf_list = vim.fn.getqflist()
+  local qf_info = vim.fn.getqflist({ idx = 0 })
+  local current_idx = qf_info.idx
+
+  local error_text = ""
+  if qf_list and qf_list[current_idx] then
+    error_text = qf_list[current_idx].text
+  end
+
+  -- Hardened prompt syntax: Remind the model to stay inside CodeCompanion's markdown parser block
+  local prompt = string.format(
+    "This selection shows absolute lines %d-%d. Fix the HTML/ERB syntax mismatch, unclosed/wrong tag, or typo causing this Herb error: %s. " ..
+    "Return the fix wrapped immediately in a standard markdown code block so the diff system can parse it.",
+    start_line, end_line, error_text
+  )
+
+  -- Highlight context lines visually
+  vim.cmd(string.format("normal! %dGV%dG", start_line, end_line))
+
+  -- Pass selection straight into CodeCompanion
+  local cmd = string.format(":CodeCompanion %s<CR>", prompt)
+  local keys = vim.api.nvim_replace_termcodes(cmd, true, false, true)
+  vim.api.nvim_feedkeys(keys, 'n', false)
+end, {})
+
+vim.keymap.set('n', '<leader>cf', ':HerbFixContext<CR>', { desc = 'Fix HTML error with CodeCompanion' })
+EOF
+endif
