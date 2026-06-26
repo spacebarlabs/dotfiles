@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Use the current directory, or pass a specific directory as an argument
+TARGET_DIR="${1:-.}"
+
+echo "Counting files by extension in: $TARGET_DIR"
+echo "----------------------------------------"
+
+find "$TARGET_DIR" \
+  -type d \( -name ".git" -o -name "node_modules" -o -name "tmp" \) -prune \
+  -o -type f -name "?*.*" -print | \
+  awk -F. '{print tolower($NF)}' | \
+  sort | \
+  uniq -c | \
+  sort -nr
