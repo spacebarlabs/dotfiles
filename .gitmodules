@@ -169,7 +169,7 @@
 	url = https://github.com/MajortomVR/simple-timer-extension.git
 	shallow = true
 [submodule ".vim/pack/plugins/start/codecompanion.nvim"]
-	path = .vim/pack/plugins/start/codecompanion.nvim
+	path = .vim/pack/plugins/opt/codecompanion.nvim
 	url = https://github.com/olimorris/codecompanion.nvim.git
 	shallow = true
 [submodule ".vim/pack/plugins/start/plenary.nvim"]
