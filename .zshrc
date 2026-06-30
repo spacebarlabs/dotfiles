@@ -194,6 +194,26 @@ precmd() {
   fi
 }
 
+wake() {
+  if [ ! -f ~/.wake-hosts ]; then
+    echo "[wake] Fetching MAC addresses. Remove ~/.wake-hosts to force a refresh."
+    ssh root@192.168.8.1 "ubus call gl-clients list" | jq -r '.clients[] | "\(.mac | ascii_downcase) \(.name // .ip)"' > ~/.wake-hosts.tmp && mv ~/.wake-hosts.tmp ~/.wake-hosts
+  fi
+
+  local target_macs=$(grep -w "$1" ~/.wake-hosts | awk '{print $1}')
+
+  if [ -n "$target_macs" ]; then
+    echo "$target_macs" | while read -r mac; do
+      if [ -n "$mac" ]; then
+        echo "[wake] Sending magic packet to $1 ($mac)..."
+        wakeonlan "$mac"
+      fi
+    done
+  else
+    echo "Host '$1' not found in ~/.wake-hosts"
+  fi
+}
+
 if [ -f "$HOME/.zshrc.local" ]; then
   source "$HOME/.zshrc.local"
 fi
