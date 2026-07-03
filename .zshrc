@@ -195,6 +195,12 @@ precmd() {
 }
 
 wake() {
+  if [ -z "$1" ]; then
+    echo "Error: No host provided"
+    echo "Usage: wake <hostname>"
+    return 1
+  fi
+
   if [ ! -f ~/.wake-hosts ]; then
     echo "[wake] Fetching MAC addresses. Remove ~/.wake-hosts to force a refresh."
     ssh root@192.168.8.1 "ubus call gl-clients list" | jq -r '.clients[] | "\(.mac | ascii_downcase) \(.name // .ip)"' > ~/.wake-hosts.tmp && mv ~/.wake-hosts.tmp ~/.wake-hosts
