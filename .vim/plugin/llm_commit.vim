@@ -8,7 +8,8 @@ endif
 
 if !exists('g:llm_model')
   " let g:llm_model = 'qwen2.5-coder:1.5b'
-  let g:llm_model = 'phi3'
+  " let g:llm_model = 'phi3'
+  let g:llm_model = 'Qwen3.5-0.8B-Q8_0'
 endif
 
 " Registry for Neovim jobs
