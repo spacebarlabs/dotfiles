@@ -1,0 +1,48 @@
+#!/usr/bin/env ruby
+
+# Map file extensions to language names for markdown code blocks
+EXTENSION_MAP = {
+  'rb' => 'ruby',
+  'py' => 'python',
+  'sh' => 'bash',
+  'bash' => 'bash',
+  'js' => 'javascript',
+  'ts' => 'typescript',
+  'html' => 'html',
+  'css' => 'css',
+  'sql' => 'sql',
+  'json' => 'json',
+  'yaml' => 'yaml',
+  'yml' => 'yaml',
+  'xml' => 'xml',
+  'md' => 'markdown',
+  'txt' => 'text'
+}.freeze
+
+def get_language_from_extension(filename)
+  extension = File.extname(filename)[1..-1]
+  EXTENSION_MAP[extension] || 'text'
+end
+
+def read_file_content(filename)
+  File.read(filename)
+rescue => e
+  "# Error reading file: #{e.message}"
+end
+
+# Main execution
+if ARGV.empty?
+  puts "Usage: #{$0} path/to/file.rb path/to/file.py ..."
+  exit 1
+end
+
+ARGV.each do |filepath|
+  content = read_file_content(filepath)
+  language = get_language_from_extension(filepath)
+
+  puts "File: #{filepath}"
+  puts "```#{language}"
+  puts content
+  puts "```"
+  puts
+end
