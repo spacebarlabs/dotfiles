@@ -1,0 +1,48 @@
+#!/usr/bin/env ruby
+
+# Gracefully handle Ctrl+C exits
+trap("SIGINT") do
+  puts "\nExiting tracker."
+  exit
+end
+
+# /proc/meminfo returns values in kilobytes (kB)
+def current_dirty_cache_kb
+  File.read("/proc/meminfo")[/Dirty:\s+(\d+)/, 1].to_i
+end
+
+dirty_at_snapshot = current_dirty_cache_kb
+time_at_snapshot = Time.now
+sleep 2
+
+loop do
+  dirty_now = current_dirty_cache_kb
+  time_now = Time.now
+  elapsed_time = time_now - time_at_snapshot
+
+  # Positive means cache drained to disk; negative means cache is refilling
+  dirty_drained = dirty_at_snapshot - dirty_now
+  write_speed_kb_per_sec = (elapsed_time > 0) ? dirty_drained / elapsed_time : 0
+
+  if dirty_now == 0
+    print "Cache Empty! Waiting for dd to feed more data...                        \r"
+  elsif dirty_drained < 0
+    # Cache size went UP because dd woke up and dumped the second half of the file
+    print "Cache Remaining: #{(dirty_now / 1024.0).round(1)} MB | Status: Refilling Cache...                    \r"
+  elsif write_speed_kb_per_sec > 0
+    eta_seconds = dirty_now / write_speed_kb_per_sec
+    eta_minutes = (eta_seconds / 60).to_i
+    eta_remaining_seconds = (eta_seconds % 60).to_i
+
+    print "Cache Remaining: #{(dirty_now / 1024.0).round(1)} MB | Write Speed: #{(write_speed_kb_per_sec / 1024.0).round(1)} MB/s | Current Wave ETA: #{eta_minutes}m #{eta_remaining_seconds}s    \r"
+  else
+    print "Cache Remaining: #{(dirty_now / 1024.0).round(1)} MB | Write Speed: Waiting/Stalled...                  \r"
+  end
+
+  $stdout.flush
+
+  # Set up the baseline values for the next loop iteration
+  dirty_at_snapshot = dirty_now
+  time_at_snapshot = time_now
+  sleep 2
+end
