@@ -1,0 +1,408 @@
+#!/usr/bin/env ruby
+
+require "net/http"
+require "json"
+require "uri"
+require "rexml/document"
+require "fileutils"
+require "yaml"
+
+CONFIG_PATH = File.expand_path("~/.rhythmbox_smart_playlist.yml")
+RHYTHMDB_PATH = File.expand_path("~/.local/share/rhythmbox/rhythmdb.xml")
+PLAYLISTS_PATH = File.expand_path("~/.local/share/rhythmbox/playlists.xml")
+CACHE_PATH = File.expand_path("~/.cache/rhythmbox_smart_playlist_cache.dat")
+MUSIC_DIR = File.expand_path("~/Music")
+
+yaml_config = {}
+if File.exist?(CONFIG_PATH)
+  yaml_config = YAML.load_file(CONFIG_PATH) || {}
+end
+
+LAST_FM_API_KEY = yaml_config["LAST_FM_API_KEY"] || ENV["LAST_FM_API_KEY"]
+LAST_FM_SHARED_SECRET = yaml_config["LAST_FM_SHARED_SECRET"] || ENV["LAST_FM_SHARED_SECRET"]
+
+def get_similar_tracks(artist, track)
+  uri = URI("http://ws.audioscrobbler.com/2.0/")
+  params = {
+    method: "track.getsimilar",
+    artist: artist,
+    track: track,
+    api_key: LAST_FM_API_KEY,
+    format: "json",
+    limit: 100
+  }
+  uri.query = URI.encode_www_form(params)
+
+  response = Net::HTTP.get_response(uri)
+  response.value
+
+  data = JSON.parse(response.body)
+
+  if data["error"]
+    raise "Last.fm API Error (Code #{data["error"]}): #{data["message"]}"
+  end
+
+  similar_tracks = data["similartracks"]
+  unless similar_tracks
+    raise "Unexpected Last.fm response structure: #{response.body}"
+  end
+
+  tracks = similar_tracks["track"] || []
+  tracks = [tracks] unless tracks.is_a?(Array)
+
+  tracks.map do |t|
+    artist_name = t.dig("artist", "name")&.downcase&.strip
+    track_name = t["name"]&.downcase&.strip
+    [artist_name, track_name]
+  end.compact
+end
+
+def quick_track_count
+  unless File.exist?(RHYTHMDB_PATH)
+    raise "Rhythmbox database not found at #{RHYTHMDB_PATH}"
+  end
+
+  count = 0
+  File.foreach(RHYTHMDB_PATH) do |line|
+    count += 1 if line.include?('<entry type="song">')
+  end
+  count
+end
+
+def load_library_cache
+  current_count = quick_track_count
+  FileUtils.mkdir_p(File.dirname(CACHE_PATH))
+
+  if File.exist?(CACHE_PATH)
+    begin
+      cache_data = Marshal.load(File.binread(CACHE_PATH))
+      if cache_data.is_a?(Hash) && cache_data[:track_count] == current_count
+        puts "Loading Rhythmbox library from cache (Track count: #{current_count})..."
+        return cache_data[:library]
+      end
+    rescue
+      puts "Cache file invalid. Forcing re-parse of XML database..."
+    end
+  end
+
+  puts "Cache missing or track count changed. Parsing Rhythmbox library XML..."
+  library = {}
+
+  File.open(RHYTHMDB_PATH) do |file|
+    doc = REXML::Document.new(file)
+    doc.elements.each('rhythmdb/entry[@type="song"]') do |entry|
+      artist = entry.elements["artist"]&.text&.downcase&.strip
+      title = entry.elements["title"]&.text&.downcase&.strip
+      location = entry.elements["location"]&.text
+
+      if artist && title && location
+        key = [artist, title]
+        library[key] ||= []
+        library[key] << location
+      end
+    end
+  end
+
+  cache_package = {
+    track_count: current_count,
+    library: library
+  }
+
+  File.binwrite(CACHE_PATH, Marshal.dump(cache_package))
+  library
+end
+
+def find_songs_by_play_count(min_plays)
+  unless File.exist?(RHYTHMDB_PATH)
+    raise "Rhythmbox database not found at #{RHYTHMDB_PATH}"
+  end
+
+  puts "Scanning Rhythmbox database for songs with at least #{min_plays} plays..."
+  songs = []
+
+  File.open(RHYTHMDB_PATH) do |file|
+    doc = REXML::Document.new(file)
+    doc.elements.each('rhythmdb/entry[@type="song"]') do |entry|
+      play_count_element = entry.elements["play-count"]
+      next unless play_count_element
+
+      plays = play_count_element.text.to_i
+      if plays >= min_plays
+        artist = entry.elements["artist"]&.text&.strip
+        title = entry.elements["title"]&.text&.strip
+        songs << [artist, title] if artist && title
+      end
+    end
+  end
+  songs
+end
+
+def match_local_library(similar_tracks, base_track = nil)
+  library = load_library_cache
+  puts "Matching recommendations against library..."
+
+  base_locations = []
+  base_key = nil
+
+  if base_track
+    base_key = [base_track[0].downcase.strip, base_track[1].downcase.strip]
+    base_locations = library[base_key] || []
+  end
+
+  similar_locations = []
+  similar_tracks.each do |artist, title|
+    key = [artist, title]
+    # Skip adding the base track again if Last.fm includes it in recommendations
+    next if base_key && key == base_key
+
+    if library.key?(key)
+      similar_locations.concat(library[key])
+    end
+  end
+
+  # Only build a playlist if actual matching similar alternative tracks were found
+  if similar_locations.empty?
+    []
+  else
+    base_locations + similar_locations
+  end
+end
+
+def write_m3u_file(playlist_name, locations)
+  FileUtils.mkdir_p(MUSIC_DIR)
+  m3u_path = File.join(MUSIC_DIR, "#{playlist_name}.m3u")
+
+  File.open(m3u_path, "w") do |f|
+    f.puts "#EXTM3U"
+    locations.each do |loc|
+      clean_path = URI.decode_www_form_component(loc.strip).sub(/^file:\/\//, "")
+      f.puts clean_path
+    end
+  end
+  puts "Generated M3U playlist file: #{m3u_path}"
+end
+
+def export_existing_playlists
+  unless File.exist?(PLAYLISTS_PATH) && !File.zero?(PLAYLISTS_PATH)
+    raise "Playlists file not found or empty at #{PLAYLISTS_PATH}"
+  end
+
+  puts "Exporting existing static playlists from Rhythmbox to #{MUSIC_DIR}..."
+  FileUtils.mkdir_p(MUSIC_DIR)
+
+  File.open(PLAYLISTS_PATH) do |file|
+    doc = REXML::Document.new(file)
+    doc.elements.each('rhythmdb-playlists/playlist[@type="static"]') do |pl|
+      name = pl.attributes["name"]
+      locations = []
+
+      pl.elements.each("location") do |loc|
+        locations << loc.text if loc.text
+      end
+
+      next if locations.empty?
+      write_m3u_file(name, locations)
+    end
+  end
+  puts "Export complete."
+end
+
+def sync_all_m3us_to_rhythmbox
+  m3u_files = Dir.glob(File.join(MUSIC_DIR, "*.m3u"))
+
+  playlist_data = {}
+  m3u_files.each do |m3u_path|
+    name = File.basename(m3u_path, ".m3u")
+    uris = []
+
+    File.foreach(m3u_path) do |line|
+      line = line.strip
+      next if line.empty? || line.start_with?("#")
+
+      if line.start_with?("file://")
+        uris << line
+      else
+        encoded_path = URI.encode_www_form_component(line).gsub("+", "%20").gsub("%2F", "/")
+        uris << "file://#{encoded_path}"
+      end
+    end
+
+    playlist_data[name] = uris unless uris.empty?
+  end
+
+  existing_data = {}
+  if File.exist?(PLAYLISTS_PATH) && !File.zero?(PLAYLISTS_PATH)
+    File.open(PLAYLISTS_PATH) do |file|
+      doc = REXML::Document.new(file)
+      doc.elements.each('rhythmdb-playlists/playlist[@type="static"]') do |pl|
+        name = pl.attributes["name"]
+        uris = []
+        pl.elements.each("location") do |loc|
+          uris << loc.text if loc.text
+        end
+        existing_data[name] = uris
+      end
+    end
+  end
+
+  change_needed = false
+
+  playlist_data.each do |name, uris|
+    if existing_data[name] != uris
+      change_needed = true
+      break
+    end
+  end
+
+  unless change_needed
+    existing_data.each_key do |name|
+      if name.start_with?("⚛️ ") && !playlist_data.key?(name)
+        change_needed = true
+        break
+      end
+    end
+  end
+
+  unless change_needed
+    puts "All playlists match local file states. Skipping Rhythmbox restart."
+    return
+  end
+
+  puts "Synchronizing changes into Rhythmbox layout..."
+  puts "Closing Rhythmbox to sync database map..."
+  system("rhythmbox-client --quit > /dev/null 2>&1")
+
+  attempts = 0
+  while system("pgrep -x rhythmbox > /dev/null 2>&1") && attempts < 20
+    sleep 0.5
+    attempts += 1
+  end
+
+  unless File.exist?(PLAYLISTS_PATH) && !File.zero?(PLAYLISTS_PATH)
+    raise "Playlists file not found or empty at #{PLAYLISTS_PATH}"
+  end
+
+  backup_path = "#{PLAYLISTS_PATH}.bak"
+  FileUtils.cp(PLAYLISTS_PATH, backup_path)
+
+  file = File.new(PLAYLISTS_PATH)
+  doc = REXML::Document.new(file)
+  root = doc.root
+
+  root.each_element("./playlist") do |pl|
+    pl_name = pl.attributes["name"]
+    if playlist_data.key?(pl_name) || pl_name.start_with?("⚛️ ")
+      root.delete_element(pl)
+    end
+  end
+
+  playlist_data.each do |name, uris|
+    pl = root.add_element("playlist", {
+      "name" => name,
+      "show-browser" => "true",
+      "browser-position" => "190",
+      "search-type" => "search-match",
+      "type" => "static"
+    })
+
+    uris.each do |uri|
+      loc_element = pl.add_element("location")
+      loc_element.text = uri
+    end
+  end
+
+  File.open(PLAYLISTS_PATH, "w") do |f|
+    doc.write(f)
+  end
+
+  puts "Rhythmbox database update completed successfully."
+  puts "Relaunching Rhythmbox..."
+
+  pid = Process.spawn("rhythmbox", out: File::NULL, err: File::NULL)
+  Process.detach(pid)
+end
+
+if __FILE__ == $0
+  if ARGV.include?("--export")
+    export_existing_playlists
+    exit
+  end
+
+  if ARGV.include?("--sync")
+    sync_all_m3us_to_rhythmbox
+    exit
+  end
+
+  if batch_idx = ARGV.index("--batch-plays")
+    min_plays = ARGV[batch_idx + 1].to_i
+    if min_plays <= 0
+      raise ArgumentError, "Provide a valid minimum play count integer after --batch-plays"
+    end
+
+    if LAST_FM_API_KEY.nil? || LAST_FM_API_KEY.empty?
+      raise ArgumentError, "LAST_FM_API_KEY is not set in #{CONFIG_PATH} or in the environment variables"
+    end
+
+    eligible_tracks = find_songs_by_play_count(min_plays)
+    if eligible_tracks.empty?
+      puts "No songs found with at least #{min_plays} plays."
+      exit
+    end
+
+    puts "Found #{eligible_tracks.size} songs matching criteria. Beginning batch generation..."
+    success_count = 0
+
+    eligible_tracks.each_with_index do |(artist, title), index|
+      puts "[#{index + 1}/#{eligible_tracks.size}] Processing: #{artist} - #{title}"
+      begin
+        similar = get_similar_tracks(artist, title)
+        if similar.empty?
+          puts "  No recommendations returned from Last.fm."
+          next
+        end
+
+        matched = match_local_library(similar, [artist, title])
+        if !matched.empty?
+          playlist_title = "⚛️ #{title}"
+          write_m3u_file(playlist_title, matched)
+          success_count += 1
+        else
+          puts "  No matches found in your collection."
+        end
+      rescue => e
+        puts "  Error processing track: #{e.message}"
+      end
+      sleep 0.25
+    end
+
+    puts "Batch processing complete. Generated #{success_count} new smart playlists."
+    sync_all_m3us_to_rhythmbox
+    exit
+  end
+
+  if LAST_FM_API_KEY.nil? || LAST_FM_API_KEY.empty?
+    raise ArgumentError, "LAST_FM_API_KEY is not set in #{CONFIG_PATH} or in the environment variables"
+  end
+
+  seed_artist = (ARGV[0] || (print "Enter Seed Artist Name: "
+                             gets.chomp)).strip
+  seed_track = (ARGV[1] || (print "Enter Seed Track Name: "
+                            gets.chomp)).strip
+
+  puts "\nSearching Last.fm for recommendations..."
+  similar = get_similar_tracks(seed_artist, seed_track)
+
+  if similar.empty?
+    puts "No recommendations returned from Last.fm for this track."
+  else
+    matched = match_local_library(similar, [seed_artist, seed_track])
+    if !matched.empty?
+      playlist_title = "⚛️ #{seed_track}"
+      write_m3u_file(playlist_title, matched)
+    else
+      puts "No matches found in your local collection for those recommendations."
+    end
+  end
+
+  sync_all_m3us_to_rhythmbox
+end
